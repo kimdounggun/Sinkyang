@@ -67,10 +67,7 @@ const Layout = ({ children }: LayoutProps) => {
       <footer className="footer">
         <div className="footer-content">
           <div className="company-info">
-            <strong>(주)셀바이오휴먼텍</strong>
-            <span>대표: 이권선</span>
-            <span>사업자등록번호: 356-87-00092</span>
-            <span>주소: 경기도 안산시 단원구 해안로 417(초지동)</span>
+            <strong>DO SOFT</strong>
           </div>
         </div>
       </footer>

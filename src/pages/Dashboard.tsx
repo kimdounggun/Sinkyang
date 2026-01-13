@@ -1,4 +1,6 @@
 import './Dashboard.css'
+import '../components/common/Section.css'
+import '../components/common/Table.css'
 
 const Dashboard = () => {
   return (

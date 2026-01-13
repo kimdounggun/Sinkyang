@@ -5,7 +5,7 @@
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .data-table thead {
@@ -49,7 +49,7 @@
 .empty-row {
   text-align: center;
   color: #999;
-  padding: 40px !important;
+  padding: 40px;
 }
 
 .table-loading {

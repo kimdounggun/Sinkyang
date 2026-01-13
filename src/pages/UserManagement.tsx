@@ -234,7 +234,7 @@ const UserManagement = () => {
   ]
 
   return (
-    <>
+    <div className="user-management">
       <ListPageTemplate
         columns={columns}
         data={users}
@@ -251,6 +251,7 @@ const UserManagement = () => {
               size="small"
               variant="warning"
               disabled={!selectedUser}
+              title={!selectedUser ? '행을 선택한 후 수정할 수 있습니다' : ''}
             >
               <span>F3 수정</span>
             </Button>
@@ -260,6 +261,7 @@ const UserManagement = () => {
               size="small"
               variant="danger"
               disabled={!selectedUser}
+              title={!selectedUser ? '행을 선택한 후 삭제할 수 있습니다' : ''}
             >
               <span>F4 삭제</span>
             </Button>
@@ -294,7 +296,7 @@ const UserManagement = () => {
 
       <AlertComponent />
       <ConfirmComponent />
-    </>
+    </div>
   )
 }
 
