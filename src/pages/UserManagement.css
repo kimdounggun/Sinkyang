@@ -1,0 +1,30 @@
+.user-management {
+  width: 100%;
+}
+
+.list-page-template .section .section-header {
+  justify-content: flex-end !important;
+}
+
+.section-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.table-actions .btn {
+  padding: 3px 6px;
+  font-size: 12px;
+  gap: 4px;
+  min-height: auto;
+}
+
+.table-actions .material-icons {
+  font-size: 16px !important;
+}
