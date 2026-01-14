@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import Button from './Button'
 import './SearchModal.css'
 
-export type SearchType = 'name' | 'department' | 'id'
+export type SearchType = string
 
 interface SearchModalProps {
   isOpen: boolean

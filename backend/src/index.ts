@@ -3,6 +3,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import { testConnection } from './config/database'
 import userRoutes from './routes/user.routes'
+import accountRoutes from './routes/account.routes'
 
 dotenv.config()
 
@@ -21,6 +22,7 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/users', userRoutes)
+app.use('/api/accounts', accountRoutes)
 
 // 404 handler
 app.use((req, res) => {
@@ -53,6 +55,7 @@ const startServer = async () => {
     console.log(`🚀 서버가 포트 ${PORT}에서 실행 중입니다.`)
     console.log(`📡 API 엔드포인트: http://localhost:${PORT}/api`)
     console.log(`👥 사용자 API: http://localhost:${PORT}/api/users`)
+    console.log(`🏢 거래처 API: http://localhost:${PORT}/api/accounts`)
   })
 
   server.on('error', (err: NodeJS.ErrnoException) => {

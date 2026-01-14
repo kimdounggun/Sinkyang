@@ -1,0 +1,8 @@
+.account-management {
+  width: 100%;
+}
+
+/* AccountManagement 페이지 전용: 제목 없을 때 버튼 오른쪽 정렬 */
+.account-management .list-page-template .section .section-header:has(.section-actions:only-child) {
+  justify-content: flex-end;
+}

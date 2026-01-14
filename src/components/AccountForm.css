@@ -1,0 +1,30 @@
+/* AccountForm 전용 스타일 */
+
+/* 짧은 필드들 (대표자, FAX, 업태, 종목 등) */
+.account-form-short-field input {
+  max-width: 200px;
+}
+
+/* 계산서 라디오 버튼 그룹 */
+.account-form-invoice-options {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.account-form-invoice-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.account-form-invoice-option input[type="radio"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.account-form-invoice-option span {
+  user-select: none;
+}
