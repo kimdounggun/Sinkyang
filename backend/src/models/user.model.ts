@@ -45,8 +45,8 @@ export class UserModel {
       params.push(status)
     }
 
-    sql += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`
-    params.push(limit, offset)
+    // LIMIT과 OFFSET은 정수값이므로 SQL에 직접 삽입 (SQL injection 위험 없음)
+    sql += ` ORDER BY created_at DESC LIMIT ${Number(limit)} OFFSET ${Number(offset)}`
 
     const [rows] = await pool.execute(sql, params)
     return rows as User[]

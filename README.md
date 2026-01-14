@@ -9,9 +9,7 @@
 1. MySQL 데이터베이스 생성:
 ```bash
 mysql -u root -p1234
-CREATE DATABASE IF NOT EXISTS sinkyang CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE sinkyang;
-SOURCE database/users.sql;
+SOURCE database/setup_complete.sql;
 ```
 
 2. 백엔드 의존성 설치:

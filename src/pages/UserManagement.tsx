@@ -242,6 +242,14 @@ const UserManagement = () => {
         emptyMessage="등록된 사용자가 없습니다."
         sectionActions={
           <div className="section-actions">
+            <Button 
+              onClick={() => setIsSearchOpen(true)} 
+              type="button" 
+              size="small"
+              variant="outline"
+            >
+              <span>F1 검색</span>
+            </Button>
             <Button onClick={handleAdd} type="button" size="small">
               <span>F2 추가</span>
             </Button>

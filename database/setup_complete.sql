@@ -23,11 +23,4 @@ CREATE TABLE IF NOT EXISTS users (
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='사용자 관리 테이블';
 
--- 기본 데이터 삽입
-INSERT INTO users (id, name, grade, department, email, status, created_by) VALUES
-('U001', '홍길동', '관리자', '경영지원부', 'hong@example.com', '활성', 'SYSTEM'),
-('U002', '김철수', '일반사용자', '생산관리', 'kim@example.com', '활성', 'SYSTEM'),
-('U003', '이영희', '일반사용자', '품질관리', 'lee@example.com', '활성', 'SYSTEM'),
-('U004', '박민수', '관리자', '구매관리', 'park@example.com', '활성', 'SYSTEM'),
-('U005', '정수진', '일반사용자', '영업관리', 'jung@example.com', '활성', 'SYSTEM')
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+

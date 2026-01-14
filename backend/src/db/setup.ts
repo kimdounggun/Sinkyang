@@ -12,21 +12,29 @@ const setupDatabase = async () => {
     }
 
     // SQL 파일 읽기 (MySQL 버전)
-    const sqlFilePath = path.join(__dirname, '../../../database/users.sql')
+    const sqlFilePath = path.join(__dirname, '../../../database/setup_complete.sql')
     
     if (!fs.existsSync(sqlFilePath)) {
       console.error('SQL 파일을 찾을 수 없습니다:', sqlFilePath)
-      console.log('수동으로 database/users.sql 파일을 실행해주세요.')
+      console.log('수동으로 database/setup_complete.sql 파일을 실행해주세요.')
       process.exit(1)
     }
 
     const sql = fs.readFileSync(sqlFilePath, 'utf-8')
     
     // SQL 문을 세미콜론으로 분리하고 실행
+    // CREATE DATABASE와 USE 문은 이미 연결된 상태에서는 제외
     const statements = sql
       .split(';')
       .map(s => s.trim())
-      .filter(s => s.length > 0 && !s.startsWith('--') && !s.startsWith('/*'))
+      .filter(s => {
+        const upper = s.toUpperCase()
+        return s.length > 0 
+          && !s.startsWith('--') 
+          && !s.startsWith('/*')
+          && !upper.startsWith('CREATE DATABASE')
+          && !upper.startsWith('USE ')
+      })
 
     console.log('데이터베이스 스키마를 설정하는 중...')
 
