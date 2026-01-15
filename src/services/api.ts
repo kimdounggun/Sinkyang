@@ -248,3 +248,136 @@ export const accountApi = {
     })
   },
 }
+
+// ==================== PurchaseAccount (매입거래처) API ====================
+
+export interface PurchaseAccount {
+  id: string
+  name: string // 거래처명
+  printName?: string // 출력명
+  representative?: string // 대표자
+  address?: string // 주소
+  postalCode?: string // 우편번호
+  phone?: string // 전화번호
+  registrationNumber?: string // 등록번호
+  fax?: string // FAX
+  businessType?: string // 업태
+  businessCategory?: string // 종목
+  remarks?: string // 비고
+  depositAccount?: string // 입금계좌
+  paymentDate?: string // 지불일
+  closingDate?: string // 마감일
+  created_at?: string
+  updated_at?: string
+}
+
+export interface CreatePurchaseAccountDto {
+  id?: string
+  name: string
+  printName?: string
+  representative?: string
+  address?: string
+  postalCode?: string
+  phone?: string
+  registrationNumber?: string
+  fax?: string
+  businessType?: string
+  businessCategory?: string
+  remarks?: string
+  depositAccount?: string
+  paymentDate?: string
+  closingDate?: string
+}
+
+export interface UpdatePurchaseAccountDto {
+  id?: string
+  name?: string
+  printName?: string
+  representative?: string
+  address?: string
+  postalCode?: string
+  phone?: string
+  registrationNumber?: string
+  fax?: string
+  businessType?: string
+  businessCategory?: string
+  remarks?: string
+  depositAccount?: string
+  paymentDate?: string
+  closingDate?: string
+}
+
+export interface PurchaseAccountListResponse {
+  success: boolean
+  data: PurchaseAccount[]
+  pagination?: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
+// 매입거래처 API
+export const purchaseAccountApi = {
+  // 전체 매입거래처 목록 조회
+  getAll: async (params?: {
+    page?: number
+    limit?: number
+    search?: string
+    businessType?: string
+    businessCategory?: string
+  }): Promise<PurchaseAccountListResponse> => {
+    const queryParams = new URLSearchParams()
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, String(value))
+        }
+      })
+    }
+    const query = queryParams.toString()
+    const response = await fetchApi<PurchaseAccountListResponse>(`/purchase-accounts${query ? `?${query}` : ''}`)
+    return response as PurchaseAccountListResponse
+  },
+
+  // 특정 매입거래처 조회
+  getById: async (id: string): Promise<PurchaseAccount> => {
+    const response = await fetchApi<PurchaseAccount>(`/purchase-accounts/${id}`)
+    if (!response.data) {
+      throw new Error('매입거래처를 찾을 수 없습니다.')
+    }
+    return response.data
+  },
+
+  // 매입거래처 생성
+  create: async (data: CreatePurchaseAccountDto): Promise<PurchaseAccount> => {
+    const response = await fetchApi<PurchaseAccount>('/purchase-accounts', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+    if (!response.data) {
+      throw new Error('매입거래처 생성에 실패했습니다.')
+    }
+    return response.data
+  },
+
+  // 매입거래처 수정
+  update: async (id: string, data: UpdatePurchaseAccountDto): Promise<PurchaseAccount> => {
+    const response = await fetchApi<PurchaseAccount>(`/purchase-accounts/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+    if (!response.data) {
+      throw new Error('매입거래처 수정에 실패했습니다.')
+    }
+    return response.data
+  },
+
+  // 매입거래처 삭제
+  delete: async (id: string): Promise<void> => {
+    await fetchApi(`/purchase-accounts/${id}`, {
+      method: 'DELETE',
+    })
+  },
+}

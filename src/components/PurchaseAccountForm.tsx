@@ -1,30 +1,32 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Account, CreateAccountDto, UpdateAccountDto } from '../services/api'
+import { PurchaseAccount, CreatePurchaseAccountDto, UpdatePurchaseAccountDto } from '../services/api'
 import { useAlert } from '../hooks/useAlert'
 import './UserForm.css'
 import './AccountForm.css'
 
-interface AccountFormProps {
-  account?: Account
-  onSave: (data: CreateAccountDto | UpdateAccountDto) => Promise<void>
+interface PurchaseAccountFormProps {
+  account?: PurchaseAccount
+  onSave: (data: CreatePurchaseAccountDto | UpdatePurchaseAccountDto) => Promise<void>
   onCancel: () => void
   isOpen: boolean
   isEditMode?: boolean
-  onSaveTrigger?: () => void
 }
 
-const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFormProps) => {
+const PurchaseAccountForm = ({ account, onSave, isOpen, isEditMode = false }: PurchaseAccountFormProps) => {
   const [formData, setFormData] = useState({
     name: '',
-    registrationNumber: '',
+    printName: '',
     representative: '',
+    address: '',
+    postalCode: '',
     phone: '',
+    registrationNumber: '',
     fax: '',
     businessType: '',
     businessCategory: '',
-    item: '',
-    invoice: '',
-    collectionDate: '',
+    remarks: '',
+    depositAccount: '',
+    paymentDate: '',
     closingDate: '',
   })
   const [loading, setLoading] = useState(false)
@@ -35,29 +37,35 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
     if (account) {
       setFormData({
         name: account.name || '',
-        registrationNumber: account.registrationNumber || '',
+        printName: account.printName || '',
         representative: account.representative || '',
+        address: account.address || '',
+        postalCode: account.postalCode || '',
         phone: account.phone || '',
+        registrationNumber: account.registrationNumber || '',
         fax: account.fax || '',
         businessType: account.businessType || '',
         businessCategory: account.businessCategory || '',
-        item: account.item || '',
-        invoice: account.invoice || '',
-        collectionDate: account.collectionDate || '',
+        remarks: account.remarks || '',
+        depositAccount: account.depositAccount || '',
+        paymentDate: account.paymentDate || '',
         closingDate: account.closingDate || '',
       })
     } else {
       setFormData({
         name: '',
-        registrationNumber: '',
+        printName: '',
         representative: '',
+        address: '',
+        postalCode: '',
         phone: '',
+        registrationNumber: '',
         fax: '',
         businessType: '',
         businessCategory: '',
-        item: '',
-        invoice: '',
-        collectionDate: '',
+        remarks: '',
+        depositAccount: '',
+        paymentDate: '',
         closingDate: '',
       })
     }
@@ -83,6 +91,59 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
     return Object.keys(newErrors).length === 0
   }
 
+  // 사업자등록번호 포맷팅 (XXX-XX-XXXXX)
+  const formatRegistrationNumber = (value: string): string => {
+    const numbers = value.replace(/[^\d]/g, '')
+    const limited = numbers.slice(0, 10)
+    
+    if (limited.length <= 3) {
+      return limited
+    } else if (limited.length <= 5) {
+      return `${limited.slice(0, 3)}-${limited.slice(3)}`
+    } else {
+      return `${limited.slice(0, 3)}-${limited.slice(3, 5)}-${limited.slice(5)}`
+    }
+  }
+
+  // 전화번호/FAX 포맷팅
+  const formatPhoneNumber = (value: string): string => {
+    const numbers = value.replace(/[^\d]/g, '')
+    const limited = numbers.slice(0, 11)
+    
+    if (limited.length <= 2) {
+      return limited
+    } else if (limited.length <= 6) {
+      return `${limited.slice(0, 2)}-${limited.slice(2)}`
+    } else if (limited.length <= 10) {
+      if (limited.length === 10 && limited.startsWith('02')) {
+        return `${limited.slice(0, 2)}-${limited.slice(2, 6)}-${limited.slice(6)}`
+      } else {
+        if (limited.startsWith('02')) {
+          return `${limited.slice(0, 2)}-${limited.slice(2, 6)}-${limited.slice(6)}`
+        } else {
+          return `${limited.slice(0, 3)}-${limited.slice(3, 6)}-${limited.slice(6)}`
+        }
+      }
+    } else {
+      return `${limited.slice(0, 3)}-${limited.slice(3, 7)}-${limited.slice(7)}`
+    }
+  }
+
+  const handleChange = (field: string, value: string) => {
+    let processedValue = value
+    
+    if (field === 'registrationNumber') {
+      processedValue = formatRegistrationNumber(value)
+    } else if (field === 'phone' || field === 'fax') {
+      processedValue = formatPhoneNumber(value)
+    }
+    
+    setFormData((prev) => ({ ...prev, [field]: processedValue }))
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: '' }))
+    }
+  }
+
   // 저장 로직을 별도 함수로 분리
   const performSave = useCallback(async () => {
     if (!validate()) {
@@ -93,34 +154,39 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
     try {
       if (account) {
         // 수정
-        const updateData: UpdateAccountDto = {
+        const updateData: UpdatePurchaseAccountDto = {
           name: formData.name,
-          registrationNumber: formData.registrationNumber || undefined,
+          printName: formData.printName || undefined,
           representative: formData.representative || undefined,
+          address: formData.address || undefined,
+          postalCode: formData.postalCode || undefined,
           phone: formData.phone || undefined,
+          registrationNumber: formData.registrationNumber || undefined,
           fax: formData.fax || undefined,
           businessType: formData.businessType || undefined,
           businessCategory: formData.businessCategory || undefined,
-          item: formData.item || undefined,
-          invoice: formData.invoice || undefined,
-          collectionDate: formData.collectionDate || undefined,
+          remarks: formData.remarks || undefined,
+          depositAccount: formData.depositAccount || undefined,
+          paymentDate: formData.paymentDate || undefined,
           closingDate: formData.closingDate || undefined,
         }
         await onSave(updateData)
       } else {
-        // 생성 - ID는 자동 생성되므로 서버에서 생성
-        const createData: CreateAccountDto = {
-          id: '', // 백엔드에서 자동 생성됨
+        // 생성
+        const createData: CreatePurchaseAccountDto = {
           name: formData.name,
-          registrationNumber: formData.registrationNumber || undefined,
+          printName: formData.printName || undefined,
           representative: formData.representative || undefined,
+          address: formData.address || undefined,
+          postalCode: formData.postalCode || undefined,
           phone: formData.phone || undefined,
+          registrationNumber: formData.registrationNumber || undefined,
           fax: formData.fax || undefined,
           businessType: formData.businessType || undefined,
           businessCategory: formData.businessCategory || undefined,
-          item: formData.item || undefined,
-          invoice: formData.invoice || undefined,
-          collectionDate: formData.collectionDate || undefined,
+          remarks: formData.remarks || undefined,
+          depositAccount: formData.depositAccount || undefined,
+          paymentDate: formData.paymentDate || undefined,
           closingDate: formData.closingDate || undefined,
         }
         await onSave(createData)
@@ -205,74 +271,6 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
     await performSave()
   }
 
-  // 사업자등록번호 포맷팅 (XXX-XX-XXXXX)
-  const formatRegistrationNumber = (value: string): string => {
-    // 숫자만 추출
-    const numbers = value.replace(/[^\d]/g, '')
-    
-    // 10자리 제한
-    const limited = numbers.slice(0, 10)
-    
-    // 하이픈 추가
-    if (limited.length <= 3) {
-      return limited
-    } else if (limited.length <= 5) {
-      return `${limited.slice(0, 3)}-${limited.slice(3)}`
-    } else {
-      return `${limited.slice(0, 3)}-${limited.slice(3, 5)}-${limited.slice(5)}`
-    }
-  }
-
-  // 전화번호/FAX 포맷팅
-  const formatPhoneNumber = (value: string): string => {
-    // 숫자만 추출
-    const numbers = value.replace(/[^\d]/g, '')
-    
-    // 11자리 제한
-    const limited = numbers.slice(0, 11)
-    
-    // 하이픈 추가
-    if (limited.length <= 2) {
-      return limited
-    } else if (limited.length <= 6) {
-      // 02-1234 또는 010-1234
-      return `${limited.slice(0, 2)}-${limited.slice(2)}`
-    } else if (limited.length <= 10) {
-      // 02-1234-5678 또는 031-123-4567
-      if (limited.length === 10 && limited.startsWith('02')) {
-        // 서울: 02-1234-5678 (2-4-4)
-        return `${limited.slice(0, 2)}-${limited.slice(2, 6)}-${limited.slice(6)}`
-      } else {
-        // 지역번호: 031-123-4567 (3-3-4) 또는 02-1234-5678 (2-4-4)
-        if (limited.startsWith('02')) {
-          return `${limited.slice(0, 2)}-${limited.slice(2, 6)}-${limited.slice(6)}`
-        } else {
-          return `${limited.slice(0, 3)}-${limited.slice(3, 6)}-${limited.slice(6)}`
-        }
-      }
-    } else {
-      // 휴대전화: 010-1234-5678 (3-4-4)
-      return `${limited.slice(0, 3)}-${limited.slice(3, 7)}-${limited.slice(7)}`
-    }
-  }
-
-  const handleChange = (field: string, value: string) => {
-    let processedValue = value
-    
-    // 등록번호 필드는 자동 포맷팅
-    if (field === 'registrationNumber') {
-      processedValue = formatRegistrationNumber(value)
-    } else if (field === 'phone' || field === 'fax') {
-      // 전화번호와 FAX 필드는 자동 포맷팅
-      processedValue = formatPhoneNumber(value)
-    }
-    
-    setFormData((prev) => ({ ...prev, [field]: processedValue }))
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: '' }))
-    }
-  }
-
   return (
     <>
       <div className="inline-form-container">
@@ -304,18 +302,13 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                 </div>
 
                 <div className="form-group">
-                  <label>등록번호</label>
+                  <label>출력명</label>
                   <input
                     type="text"
-                    value={formData.registrationNumber}
-                    onChange={(e) => handleChange('registrationNumber', e.target.value)}
+                    value={formData.printName}
+                    onChange={(e) => handleChange('printName', e.target.value)}
                     disabled={loading || !isEditMode}
-                    maxLength={12}
-                    className={errors.registrationNumber ? 'error' : ''}
                   />
-                  {errors.registrationNumber && (
-                    <span className="error-message">{errors.registrationNumber}</span>
-                  )}
                 </div>
               </div>
 
@@ -326,6 +319,28 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                     type="text"
                     value={formData.representative}
                     onChange={(e) => handleChange('representative', e.target.value)}
+                    disabled={loading || !isEditMode}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>주소</label>
+                  <input
+                    type="text"
+                    value={formData.address}
+                    onChange={(e) => handleChange('address', e.target.value)}
+                    disabled={loading || !isEditMode}
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group account-form-short-field">
+                  <label>우편번호</label>
+                  <input
+                    type="text"
+                    value={formData.postalCode}
+                    onChange={(e) => handleChange('postalCode', e.target.value)}
                     disabled={loading || !isEditMode}
                   />
                 </div>
@@ -342,6 +357,21 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
               </div>
 
               <div className="form-row">
+                <div className="form-group">
+                  <label>등록번호</label>
+                  <input
+                    type="text"
+                    value={formData.registrationNumber}
+                    onChange={(e) => handleChange('registrationNumber', e.target.value)}
+                    disabled={loading || !isEditMode}
+                    maxLength={12}
+                    className={errors.registrationNumber ? 'error' : ''}
+                  />
+                  {errors.registrationNumber && (
+                    <span className="error-message">{errors.registrationNumber}</span>
+                  )}
+                </div>
+
                 <div className="form-group account-form-short-field">
                   <label>FAX</label>
                   <input
@@ -351,7 +381,9 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                     disabled={loading || !isEditMode}
                   />
                 </div>
+              </div>
 
+              <div className="form-row">
                 <div className="form-group account-form-short-field">
                   <label>업 태</label>
                   <input
@@ -361,9 +393,7 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                     disabled={loading || !isEditMode}
                   />
                 </div>
-              </div>
 
-              <div className="form-row">
                 <div className="form-group account-form-short-field">
                   <label>종 목</label>
                   <input
@@ -373,43 +403,37 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                     disabled={loading || !isEditMode}
                   />
                 </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>비고</label>
+                  <input
+                    type="text"
+                    value={formData.remarks}
+                    onChange={(e) => handleChange('remarks', e.target.value)}
+                    disabled={loading || !isEditMode}
+                  />
+                </div>
 
                 <div className="form-group">
-                  <label>계산서</label>
-                  <div className="account-form-invoice-options">
-                    <label className="account-form-invoice-option">
-                      <input
-                        type="radio"
-                        name="invoice"
-                        value="월말"
-                        checked={formData.invoice === '월말'}
-                        onChange={(e) => handleChange('invoice', e.target.value)}
-                        disabled={loading || !isEditMode}
-                      />
-                      <span>월말</span>
-                    </label>
-                    <label className="account-form-invoice-option">
-                      <input
-                        type="radio"
-                        name="invoice"
-                        value="즉시"
-                        checked={formData.invoice === '즉시'}
-                        onChange={(e) => handleChange('invoice', e.target.value)}
-                        disabled={loading || !isEditMode}
-                      />
-                      <span>즉시</span>
-                    </label>
-                  </div>
+                  <label>입금계좌</label>
+                  <input
+                    type="text"
+                    value={formData.depositAccount}
+                    onChange={(e) => handleChange('depositAccount', e.target.value)}
+                    disabled={loading || !isEditMode}
+                  />
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>수금일</label>
+                  <label>지불일</label>
                   <input
                     type="text"
-                    value={formData.collectionDate}
-                    onChange={(e) => handleChange('collectionDate', e.target.value)}
+                    value={formData.paymentDate}
+                    onChange={(e) => handleChange('paymentDate', e.target.value)}
                     disabled={loading || !isEditMode}
                   />
                 </div>
@@ -425,6 +449,7 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                 </div>
               </div>
             </div>
+
         </form>
       </div>
 
@@ -433,4 +458,4 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
   )
 }
 
-export default AccountForm
+export default PurchaseAccountForm

@@ -157,24 +157,49 @@ export const useListPage = <T extends Record<string, any>, CreateDto, UpdateDto>
     async (data: CreateDto | UpdateDto) => {
       try {
         if (editingItem) {
-          // 수정
+          // 수정: 서버 응답으로 업데이트된 항목 받아서 리스트에 반영
           const key = keyExtractor(editingItem)
-          await apiService.update(String(key), data as UpdateDto)
-          const successMsg = getSuccessMessage
-            ? getSuccessMessage('update')
-            : '수정되었습니다.'
-          showSuccess(successMsg)
+          const updatedItem = await apiService.update(String(key), data as UpdateDto)
+          // 성공 메시지 제거 (사용자 요청)
+          
+          // 리스트에서 해당 항목만 업데이트 (전체 새로고침 없이)
+          setItems((prevItems) => {
+            return prevItems.map((item) => {
+              const itemKey = keyExtractor(item)
+              return itemKey === key ? updatedItem : item
+            })
+          })
+          setAllItems((prevItems) => {
+            return prevItems.map((item) => {
+              const itemKey = keyExtractor(item)
+              return itemKey === key ? updatedItem : item
+            })
+          })
+          
+          // 선택된 항목도 업데이트
+          setSelectedItem((prev) => {
+            if (prev) {
+              const prevKey = keyExtractor(prev)
+              return prevKey === key ? updatedItem : prev
+            }
+            return prev
+          })
+          
+          // 편집 중인 항목 업데이트
+          setEditingItem(updatedItem)
         } else {
-          // 생성
-          await apiService.create(data as CreateDto)
-          const successMsg = getSuccessMessage
-            ? getSuccessMessage('create')
-            : '추가되었습니다.'
-          showSuccess(successMsg)
+          // 생성: 서버 응답으로 생성된 항목 받아서 리스트에 추가
+          const newItem = await apiService.create(data as CreateDto)
+          // 성공 메시지 제거 (사용자 요청)
+          
+          // 리스트 맨 앞에 추가 (전체 새로고침 없이)
+          setItems((prevItems) => [newItem, ...prevItems])
+          setAllItems((prevItems) => [newItem, ...prevItems])
+          
+          // 새로 생성된 항목 선택
+          setSelectedItem(newItem)
+          setEditingItem(newItem)
         }
-        setIsFormOpen(false)
-        setEditingItem(undefined)
-        await fetchItems()
       } catch (error) {
         console.error('저장 오류:', error)
         throw error
@@ -184,9 +209,6 @@ export const useListPage = <T extends Record<string, any>, CreateDto, UpdateDto>
       editingItem,
       apiService,
       keyExtractor,
-      fetchItems,
-      showSuccess,
-      getSuccessMessage,
     ]
   )
 

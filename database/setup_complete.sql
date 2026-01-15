@@ -45,4 +45,29 @@ CREATE TABLE IF NOT EXISTS accounts (
     INDEX idx_business_type (business_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='거래처 관리 테이블';
 
+-- 매입거래처 테이블 생성
+CREATE TABLE IF NOT EXISTS purchase_accounts (
+    id VARCHAR(20) PRIMARY KEY COMMENT '거래처 ID',
+    name VARCHAR(100) NOT NULL COMMENT '거래처명',
+    print_name VARCHAR(100) COMMENT '출력명',
+    representative VARCHAR(50) COMMENT '대표자',
+    address VARCHAR(255) COMMENT '주소',
+    postal_code VARCHAR(20) COMMENT '우편번호',
+    phone VARCHAR(20) COMMENT '전화번호',
+    registration_number VARCHAR(50) COMMENT '등록번호',
+    fax VARCHAR(20) COMMENT 'FAX',
+    business_type VARCHAR(50) COMMENT '업태',
+    business_category VARCHAR(50) COMMENT '종목',
+    remarks TEXT COMMENT '비고',
+    deposit_account VARCHAR(100) COMMENT '입금계좌',
+    payment_date VARCHAR(20) COMMENT '지불일',
+    closing_date VARCHAR(20) COMMENT '마감일',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일시',
+    created_by VARCHAR(20) COMMENT '생성자',
+    updated_by VARCHAR(20) COMMENT '수정자',
+    INDEX idx_name (name),
+    INDEX idx_business_type (business_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='매입거래처 관리 테이블';
+
 

@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
 import { TableColumn } from '../types'
-import { accountApi, Account, CreateAccountDto, UpdateAccountDto } from '../services/api'
+import { purchaseAccountApi, PurchaseAccount, CreatePurchaseAccountDto, UpdatePurchaseAccountDto } from '../services/api'
 import { Button, Section, Table } from '../components/common'
-import AccountForm from '../components/AccountForm'
+import PurchaseAccountForm from '../components/PurchaseAccountForm'
 import SearchModal from '../components/common/SearchModal'
 import { useListPage } from '../hooks/useListPage'
 import { useConfirm } from '../hooks/useConfirm'
-import './AccountManagement.css'
+import './PurchaseAccountManagement.css'
 
 // 검색 필터 함수
-const accountSearchFilter = (account: Account, searchType: string, searchValue: string): boolean => {
+const purchaseAccountSearchFilter = (account: PurchaseAccount, searchType: string, searchValue: string): boolean => {
   const value = searchValue.toLowerCase().trim()
   switch (searchType) {
     case 'name':
@@ -23,7 +23,7 @@ const accountSearchFilter = (account: Account, searchType: string, searchValue: 
   }
 }
 
-const AccountManagement = () => {
+const PurchaseAccountManagement = () => {
   const {
     items: accounts,
     loading,
@@ -32,7 +32,6 @@ const AccountManagement = () => {
     editingItem: editingAccount,
     selectedItem: selectedAccount,
     setIsSearchOpen,
-    setIsFormOpen,
     handleAdd,
     handleEdit,
     handleDelete,
@@ -43,10 +42,10 @@ const AccountManagement = () => {
     fetchItems,
     AlertComponent,
     ConfirmComponent,
-  } = useListPage<Account, CreateAccountDto, UpdateAccountDto>({
-    apiService: accountApi,
+  } = useListPage<PurchaseAccount, CreatePurchaseAccountDto, UpdatePurchaseAccountDto>({
+    apiService: purchaseAccountApi,
     keyExtractor: (account) => account.id,
-    searchFilterFn: accountSearchFilter,
+    searchFilterFn: purchaseAccountSearchFilter,
     getDeleteMessage: (account) => `정말로 "${account.name}" 거래처를 삭제하시겠습니까?`,
     getDeleteTitle: () => '거래처 삭제',
     getSuccessMessage: (action) => {
@@ -59,7 +58,7 @@ const AccountManagement = () => {
           return '거래처가 삭제되었습니다.'
       }
     },
-    enableKeyboardShortcuts: false, // F4 키는 AccountManagement에서 직접 처리
+    enableKeyboardShortcuts: false, // F4 키는 PurchaseAccountManagement에서 직접 처리
   })
 
   // 수정 모드 상태
@@ -88,36 +87,19 @@ const AccountManagement = () => {
     if (!isEditMode) {
       // 약간의 지연을 두어 상태 업데이트 후 포커스 제거
       const timeoutId = setTimeout(() => {
-        // 모든 입력 필드 blur
-        const form = document.querySelector('.inline-form-content')
-        if (form) {
-          const inputs = form.querySelectorAll('input, textarea, select, button')
-          inputs.forEach((input) => {
-            if (input instanceof HTMLElement) {
-              input.blur()
-            }
-          })
-        }
-        
-        // 현재 활성 요소 blur
-        const activeEl = document.activeElement
-        if (activeEl instanceof HTMLElement) {
-          if (activeEl instanceof HTMLInputElement || 
-              activeEl instanceof HTMLTextAreaElement ||
-              activeEl instanceof HTMLButtonElement ||
-              activeEl instanceof HTMLSelectElement) {
-            activeEl.blur()
+        if (document.activeElement instanceof HTMLElement) {
+          if (document.activeElement instanceof HTMLInputElement || 
+              document.activeElement instanceof HTMLTextAreaElement ||
+              document.activeElement instanceof HTMLButtonElement ||
+              document.activeElement instanceof HTMLSelectElement) {
+            document.activeElement.blur()
           }
         }
-        
         // body에 포커스 부여
         if (document.body) {
-          if (!document.body.hasAttribute('tabindex')) {
-            document.body.setAttribute('tabindex', '-1')
-          }
           document.body.focus()
         }
-      }, 100)
+      }, 150)
       
       return () => clearTimeout(timeoutId)
     }
@@ -154,7 +136,7 @@ const AccountManagement = () => {
         try {
           const checkedIds = Array.from(checkedAccounts)
           for (const id of checkedIds) {
-            await accountApi.delete(id)
+            await purchaseAccountApi.delete(id)
           }
           setCheckedAccounts(new Set())
           fetchItems()
@@ -181,11 +163,6 @@ const AccountManagement = () => {
       const isFKey = e.key === 'F1' || e.key === 'F2' || e.key === 'F3' || e.key === 'F4'
       const isArrowKey = e.key === 'ArrowUp' || e.key === 'ArrowDown'
       
-      // 수정 모드가 아닐 때만 방향키 처리
-      if (isArrowKey && isEditModeRef.current) {
-        return
-      }
-      
       // F키나 방향키가 아니고 입력 필드에 포커스가 있으면 단축키 무시 (체크박스는 제외)
       if (
         !isFKey &&
@@ -199,11 +176,6 @@ const AccountManagement = () => {
       ) {
         return
       }
-      
-      // 방향키는 수정 모드가 아닐 때만 처리
-      if (isArrowKey && isEditModeRef.current) {
-        return
-      }
 
       // F1: 검색 (행 선택 안 되어 있을 때만)
       if (e.key === 'F1') {
@@ -211,10 +183,11 @@ const AccountManagement = () => {
         e.stopPropagation()
         e.stopImmediatePropagation()
         // 포커스 제거
-        if (document.activeElement instanceof HTMLElement) {
-          if (document.activeElement instanceof HTMLInputElement || 
-              document.activeElement instanceof HTMLTextAreaElement) {
-            document.activeElement.blur()
+        const activeEl = document.activeElement
+        if (activeEl instanceof HTMLElement) {
+          if (activeEl instanceof HTMLInputElement || 
+              activeEl instanceof HTMLTextAreaElement) {
+            activeEl.blur()
           }
         }
         if (!selectedAccount) {
@@ -226,7 +199,7 @@ const AccountManagement = () => {
         e.preventDefault()
         e.stopPropagation()
         e.stopImmediatePropagation()
-        // 추가 모드이고 편집 중일 때: AccountForm의 F2 핸들러가 저장 처리 (이미 처리됨)
+        // 추가 모드이고 편집 중일 때: PurchaseAccountForm의 F2 핸들러가 저장 처리 (이미 처리됨)
         // 추가 모드가 아닐 때: 추가 모드로 진입
         if (!isEditModeRef.current || editingAccount !== undefined) {
           handleAdd()
@@ -248,8 +221,8 @@ const AccountManagement = () => {
       else if (e.key === 'F3') {
         if (selectedAccount) {
           if (isEditModeRef.current) {
-            // 수정 모드일 때: AccountForm의 F3 핸들러가 처리
-            // 여기서는 아무것도 하지 않음 - AccountForm이 처리함
+            // 수정 모드일 때: PurchaseAccountForm의 F3 핸들러가 처리
+            // 여기서는 아무것도 하지 않음 - PurchaseAccountForm이 처리함
             return
           } else {
             // 수정 모드가 아닐 때: 수정 모드로 전환
@@ -283,7 +256,7 @@ const AccountManagement = () => {
               async () => {
                 try {
                   for (const id of checkedIds) {
-                    await accountApi.delete(id)
+                    await purchaseAccountApi.delete(id)
                   }
                   setCheckedAccounts(new Set())
                   fetchItems()
@@ -382,7 +355,7 @@ const AccountManagement = () => {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isFormOpen, isSearchOpen, selectedAccount, accounts, handleAdd, handleEdit, handleDelete, handleRowClick, setIsSearchOpen, showConfirmChecked, fetchItems])
 
-  const columns: TableColumn<Account>[] = [
+  const columns: TableColumn<PurchaseAccount>[] = [
     {
       key: 'pr',
       label: 'PR',
@@ -425,13 +398,12 @@ const AccountManagement = () => {
     { key: 'fax', label: 'FAX' },
     { key: 'businessType', label: '업 태' },
     { key: 'businessCategory', label: '종 목' },
-    { key: 'invoice', label: '계산서' },
-    { key: 'collectionDate', label: '수금일' },
+    { key: 'paymentDate', label: '지불일' },
     { key: 'closingDate', label: '마감일' },
   ]
 
   return (
-    <div className="account-management">
+    <div className="purchase-account-management">
       {/* 상단 버튼들 */}
       <div className="account-page-header">
         <div className="section-actions">
@@ -446,16 +418,28 @@ const AccountManagement = () => {
           <Button onClick={handleAdd} type="button" size="small">
             <span>F2 추가</span>
           </Button>
-          <Button 
-            onClick={() => selectedAccount && handleEdit(selectedAccount)} 
-            type="button" 
-            size="small"
-            variant="warning"
-            disabled={!selectedAccount}
-            title={!selectedAccount ? '행을 선택한 후 수정할 수 있습니다' : ''}
-          >
-            <span>F3 수정</span>
-          </Button>
+            <Button 
+              onClick={() => {
+                if (selectedAccount) {
+                  if (isEditMode) {
+                    const form = document.querySelector('.inline-form-content form') as HTMLFormElement
+                    if (form) {
+                      form.requestSubmit()
+                    }
+                  } else {
+                    handleEdit(selectedAccount)
+                    setIsEditMode(true)
+                  }
+                }
+              }} 
+              type="button" 
+              size="small"
+              variant="warning"
+              disabled={!selectedAccount}
+              title={!selectedAccount ? '행을 선택한 후 수정할 수 있습니다' : ''}
+            >
+              <span>F3 {isEditMode ? '완료' : '수정'}</span>
+            </Button>
           <Button 
             onClick={() => {
               if (checkedAccounts.size > 0) {
@@ -482,25 +466,17 @@ const AccountManagement = () => {
       </div>
 
       {/* 중간 입력 폼 */}
-      <AccountForm
+      <PurchaseAccountForm
         account={isEditMode && editingAccount ? editingAccount : (!isEditMode && selectedAccount ? selectedAccount : undefined)}
-        isOpen={true}
-        isEditMode={isEditMode}
         onSave={async (data) => {
           try {
             isSavingRef.current = true
             await handleSave(data)
             
-            // 저장 후 수정 모드 해제 (editingAccount는 handleSave에서 업데이트되지만, isEditMode가 false이면 무시됨)
+            // 저장 후 수정 모드 해제 및 editingAccount 초기화
             isEditModeRef.current = false
             setIsEditMode(false)
-            
-            // editingAccount를 초기화하기 위해 handleCancel 호출
-            handleCancel()
-            // 인라인 폼이므로 isFormOpen을 다시 true로 설정 (handleCancel이 false로 만듦)
-            setTimeout(() => {
-              setIsFormOpen(true)
-            }, 0)
+            handleCancel() // editingAccount를 undefined로 만들기 위해 (인라인 폼이므로 isFormOpen은 무시)
             
             // 약간의 지연 후 저장 플래그 해제 및 포커스 제거
             setTimeout(() => {
@@ -552,10 +528,12 @@ const AccountManagement = () => {
           handleCancel()
           setIsEditMode(false)
         }}
+        isOpen={true}
+        isEditMode={isEditMode}
       />
 
       {/* 하단 테이블 */}
-      <Section title="▲매출거래처 목록">
+      <Section title="▲매입거래처 목록">
         <Table
           columns={columns}
           data={accounts}
@@ -569,14 +547,13 @@ const AccountManagement = () => {
 
       <SearchModal
         isOpen={isSearchOpen}
-        onSearch={handleSearch}
         onClose={() => setIsSearchOpen(false)}
+        onSearch={handleSearch}
         searchTypes={[
           { value: 'name', label: '거래처명' },
           { value: 'representative', label: '대표자' },
           { value: 'id', label: 'ID' },
         ]}
-        defaultSearchType="name"
       />
 
       <AlertComponent />
@@ -586,4 +563,4 @@ const AccountManagement = () => {
   )
 }
 
-export default AccountManagement
+export default PurchaseAccountManagement

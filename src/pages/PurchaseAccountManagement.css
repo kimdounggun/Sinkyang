@@ -1,9 +1,9 @@
-.account-management {
+.purchase-account-management {
   width: 100%;
 }
 
 /* 상단 버튼 헤더 */
-.account-management .account-page-header {
+.purchase-account-management .account-page-header {
   background-color: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 4px;
@@ -11,14 +11,14 @@
   margin-bottom: 16px;
 }
 
-.account-management .account-page-header .section-actions {
+.purchase-account-management .account-page-header .section-actions {
   display: flex;
   gap: 8px;
   justify-content: flex-start;
 }
 
 /* 체크박스 포커스 테두리 제거 */
-.account-management input[type="checkbox"]:focus {
+.purchase-account-management input[type="checkbox"]:focus {
   outline: none;
   box-shadow: none;
 }

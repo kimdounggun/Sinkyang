@@ -2,7 +2,7 @@
 
 /* 짧은 필드들 (대표자, FAX, 업태, 종목 등) */
 .account-form-short-field input {
-  max-width: 200px;
+  max-width: 150px;
 }
 
 /* 계산서 라디오 버튼 그룹 */
@@ -27,4 +27,53 @@
 
 .account-form-invoice-option span {
   user-select: none;
+}
+
+/* 인라인 폼 컨테이너 */
+.inline-form-container {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+}
+
+.inline-form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.inline-form-content .form-fields {
+  padding: 8px 0;
+}
+
+.inline-form-content .form-row {
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.inline-form-content .form-group {
+  margin-bottom: 8px;
+}
+
+.inline-form-content .form-group label {
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.inline-form-content .form-group input,
+.inline-form-content .form-group select {
+  padding: 4px 8px;
+  font-size: 13px;
+  height: 28px;
+}
+
+.inline-form-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e0e0e0;
 }
