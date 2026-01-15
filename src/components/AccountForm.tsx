@@ -16,16 +16,24 @@ interface AccountFormProps {
 const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFormProps) => {
   const [formData, setFormData] = useState({
     name: '',
+    printName: '',
     registrationNumber: '',
     representative: '',
+    residentRegistrationNumber: '',
     phone: '',
     fax: '',
+    address: '',
+    postalCode: '',
     businessType: '',
     businessCategory: '',
-    item: '',
-    invoice: '',
+    electronicInvoiceInput: '',
+    email: '',
     collectionDate: '',
+    remarks: '',
     closingDate: '',
+    invoice: '',
+    contactPerson: '',
+    contactPersonPhone: '',
   })
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -35,30 +43,46 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
     if (account) {
       setFormData({
         name: account.name || '',
+        printName: account.printName || '',
         registrationNumber: account.registrationNumber || '',
         representative: account.representative || '',
+        residentRegistrationNumber: account.residentRegistrationNumber || '',
         phone: account.phone || '',
         fax: account.fax || '',
+        address: account.address || '',
+        postalCode: account.postalCode || '',
         businessType: account.businessType || '',
         businessCategory: account.businessCategory || '',
-        item: account.item || '',
-        invoice: account.invoice || '',
+        electronicInvoiceInput: account.electronicInvoiceInput || '',
+        email: account.email || '',
         collectionDate: account.collectionDate || '',
+        remarks: account.remarks || '',
         closingDate: account.closingDate || '',
+        invoice: account.invoice || '',
+        contactPerson: account.contactPerson || '',
+        contactPersonPhone: account.contactPersonPhone || '',
       })
     } else {
       setFormData({
         name: '',
+        printName: '',
         registrationNumber: '',
         representative: '',
+        residentRegistrationNumber: '',
         phone: '',
         fax: '',
+        address: '',
+        postalCode: '',
         businessType: '',
         businessCategory: '',
-        item: '',
-        invoice: '',
+        electronicInvoiceInput: '',
+        email: '',
         collectionDate: '',
+        remarks: '',
         closingDate: '',
+        invoice: '',
+        contactPerson: '',
+        contactPersonPhone: '',
       })
     }
     setErrors({})
@@ -95,16 +119,24 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
         // 수정
         const updateData: UpdateAccountDto = {
           name: formData.name,
+          printName: formData.printName || undefined,
           registrationNumber: formData.registrationNumber || undefined,
           representative: formData.representative || undefined,
+          residentRegistrationNumber: formData.residentRegistrationNumber || undefined,
           phone: formData.phone || undefined,
           fax: formData.fax || undefined,
+          address: formData.address || undefined,
+          postalCode: formData.postalCode || undefined,
           businessType: formData.businessType || undefined,
           businessCategory: formData.businessCategory || undefined,
-          item: formData.item || undefined,
-          invoice: formData.invoice || undefined,
+          electronicInvoiceInput: formData.electronicInvoiceInput || undefined,
+          email: formData.email || undefined,
           collectionDate: formData.collectionDate || undefined,
+          remarks: formData.remarks || undefined,
           closingDate: formData.closingDate || undefined,
+          invoice: formData.invoice || undefined,
+          contactPerson: formData.contactPerson || undefined,
+          contactPersonPhone: formData.contactPersonPhone || undefined,
         }
         await onSave(updateData)
       } else {
@@ -112,16 +144,24 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
         const createData: CreateAccountDto = {
           id: '', // 백엔드에서 자동 생성됨
           name: formData.name,
+          printName: formData.printName || undefined,
           registrationNumber: formData.registrationNumber || undefined,
           representative: formData.representative || undefined,
+          residentRegistrationNumber: formData.residentRegistrationNumber || undefined,
           phone: formData.phone || undefined,
           fax: formData.fax || undefined,
+          address: formData.address || undefined,
+          postalCode: formData.postalCode || undefined,
           businessType: formData.businessType || undefined,
           businessCategory: formData.businessCategory || undefined,
-          item: formData.item || undefined,
-          invoice: formData.invoice || undefined,
+          electronicInvoiceInput: formData.electronicInvoiceInput || undefined,
+          email: formData.email || undefined,
           collectionDate: formData.collectionDate || undefined,
+          remarks: formData.remarks || undefined,
           closingDate: formData.closingDate || undefined,
+          invoice: formData.invoice || undefined,
+          contactPerson: formData.contactPerson || undefined,
+          contactPersonPhone: formData.contactPersonPhone || undefined,
         }
         await onSave(createData)
       }
@@ -256,15 +296,34 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
     }
   }
 
+  // 주민번호 포맷팅 (XXXXXX-XXXXXXX)
+  const formatResidentRegistrationNumber = (value: string): string => {
+    // 숫자만 추출
+    const numbers = value.replace(/[^\d]/g, '')
+    
+    // 13자리 제한
+    const limited = numbers.slice(0, 13)
+    
+    // 하이픈 추가
+    if (limited.length <= 6) {
+      return limited
+    } else {
+      return `${limited.slice(0, 6)}-${limited.slice(6)}`
+    }
+  }
+
   const handleChange = (field: string, value: string) => {
     let processedValue = value
     
     // 등록번호 필드는 자동 포맷팅
     if (field === 'registrationNumber') {
       processedValue = formatRegistrationNumber(value)
-    } else if (field === 'phone' || field === 'fax') {
-      // 전화번호와 FAX 필드는 자동 포맷팅
+    } else if (field === 'phone' || field === 'fax' || field === 'contactPersonPhone') {
+      // 전화번호와 FAX, 담당자 전화번호 필드는 자동 포맷팅
       processedValue = formatPhoneNumber(value)
+    } else if (field === 'residentRegistrationNumber') {
+      // 주민번호 필드는 자동 포맷팅
+      processedValue = formatResidentRegistrationNumber(value)
     }
     
     setFormData((prev) => ({ ...prev, [field]: processedValue }))
@@ -288,8 +347,9 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
           className="inline-form-content"
         >
             <div className="form-fields">
+              {/* Row 1: 거래처명(왼), 출력명(오) */}
               <div className="form-row">
-                <div className="form-group">
+                <div className="form-group account-form-medium-field">
                   <label>
                     거래처명 <span className="required">*</span>
                   </label>
@@ -303,7 +363,20 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                   {errors.name && <span className="error-message">{errors.name}</span>}
                 </div>
 
-                <div className="form-group">
+                <div className="form-group account-form-medium-field">
+                  <label>출력명</label>
+                  <input
+                    type="text"
+                    value={formData.printName}
+                    onChange={(e) => handleChange('printName', e.target.value)}
+                    disabled={loading || !isEditMode}
+                  />
+                </div>
+              </div>
+
+              {/* Row 2: 등록번호(왼), (오른쪽 빈칸) */}
+              <div className="form-row">
+                <div className="form-group account-form-very-short-field">
                   <label>등록번호</label>
                   <input
                     type="text"
@@ -317,8 +390,10 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                     <span className="error-message">{errors.registrationNumber}</span>
                   )}
                 </div>
+                <div className="form-group"></div>
               </div>
 
+              {/* Row 3: 대표자(왼), 주민번호(오) */}
               <div className="form-row">
                 <div className="form-group account-form-short-field">
                   <label>대표자</label>
@@ -330,7 +405,21 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group account-form-very-short-field">
+                  <label>주민번호</label>
+                  <input
+                    type="text"
+                    value={formData.residentRegistrationNumber}
+                    onChange={(e) => handleChange('residentRegistrationNumber', e.target.value)}
+                    disabled={loading || !isEditMode}
+                    maxLength={14}
+                  />
+                </div>
+              </div>
+
+              {/* Row 4: 전화번호(왼), FAX(오) */}
+              <div className="form-row">
+                <div className="form-group account-form-medium-field">
                   <label>전화번호</label>
                   <input
                     type="text"
@@ -339,10 +428,8 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                     disabled={loading || !isEditMode}
                   />
                 </div>
-              </div>
 
-              <div className="form-row">
-                <div className="form-group account-form-short-field">
+                <div className="form-group account-form-medium-field">
                   <label>FAX</label>
                   <input
                     type="text"
@@ -351,9 +438,40 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                     disabled={loading || !isEditMode}
                   />
                 </div>
+              </div>
 
+              {/* Row 5: 주소 */}
+              <div className="form-row">
+                <div className="form-group account-form-very-long-field">
+                  <label>주소</label>
+                  <input
+                    type="text"
+                    value={formData.address}
+                    onChange={(e) => handleChange('address', e.target.value)}
+                    disabled={loading || !isEditMode}
+                  />
+                </div>
+                <div className="form-group"></div>
+              </div>
+
+              {/* Row 6: 우편물 */}
+              <div className="form-row">
+                <div className="form-group account-form-very-short-field">
+                  <label>우편물</label>
+                  <input
+                    type="text"
+                    value={formData.postalCode}
+                    onChange={(e) => handleChange('postalCode', e.target.value)}
+                    disabled={loading || !isEditMode}
+                  />
+                </div>
+                <div className="form-group"></div>
+              </div>
+
+              {/* Row 7: 업태(왼), 종목(오) */}
+              <div className="form-row">
                 <div className="form-group account-form-short-field">
-                  <label>업 태</label>
+                  <label>업태</label>
                   <input
                     type="text"
                     value={formData.businessType}
@@ -361,11 +479,9 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                     disabled={loading || !isEditMode}
                   />
                 </div>
-              </div>
 
-              <div className="form-row">
                 <div className="form-group account-form-short-field">
-                  <label>종 목</label>
+                  <label>종목</label>
                   <input
                     type="text"
                     value={formData.businessCategory}
@@ -373,8 +489,27 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                     disabled={loading || !isEditMode}
                   />
                 </div>
+              </div>
 
-                <div className="form-group">
+              {/* Row 8: 전자계산서 입력항목(헤더 왼), E-mail(오) */}
+              <div className="form-row">
+                <div className="form-group account-form-section-header">
+                  <label>전자계산서 입력항목</label>
+                </div>
+                <div className="form-group account-form-medium-field">
+                  <label>E-mail</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleChange('email', e.target.value)}
+                    disabled={loading || !isEditMode}
+                  />
+                </div>
+              </div>
+
+              {/* Row 9: 계산서(라디오 버튼) */}
+              <div className="form-row">
+                <div className="form-group account-form-short-field">
                   <label>계산서</label>
                   <div className="account-form-invoice-options">
                     <label className="account-form-invoice-option">
@@ -401,10 +536,12 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                     </label>
                   </div>
                 </div>
+                <div className="form-group"></div>
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
+              {/* Row 10: 수금일(왼), 비고(중간), 담당자(오) */}
+              <div className="form-row account-form-remarks-row">
+                <div className="form-group account-form-very-short-field">
                   <label>수금일</label>
                   <input
                     type="text"
@@ -414,12 +551,45 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group account-form-remarks-field">
+                  <label>비고</label>
+                  <textarea
+                    value={formData.remarks}
+                    onChange={(e) => handleChange('remarks', e.target.value)}
+                    disabled={loading || !isEditMode}
+                    rows={2}
+                  />
+                </div>
+
+                <div className="form-group account-form-very-short-field">
+                  <label>담당자</label>
+                  <input
+                    type="text"
+                    value={formData.contactPerson}
+                    onChange={(e) => handleChange('contactPerson', e.target.value)}
+                    disabled={loading || !isEditMode}
+                  />
+                </div>
+              </div>
+
+              {/* Row 11: 마감일(왼), 전화번호(담당자 전화번호, 오) */}
+              <div className="form-row">
+                <div className="form-group account-form-very-short-field">
                   <label>마감일</label>
                   <input
                     type="text"
                     value={formData.closingDate}
                     onChange={(e) => handleChange('closingDate', e.target.value)}
+                    disabled={loading || !isEditMode}
+                  />
+                </div>
+
+                <div className="form-group account-form-medium-field">
+                  <label>전화번호</label>
+                  <input
+                    type="text"
+                    value={formData.contactPersonPhone}
+                    onChange={(e) => handleChange('contactPersonPhone', e.target.value)}
                     disabled={loading || !isEditMode}
                   />
                 </div>

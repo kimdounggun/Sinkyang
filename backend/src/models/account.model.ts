@@ -11,16 +11,24 @@ export class AccountModel {
       SELECT 
         id,
         name,
+        print_name,
         registration_number,
         representative,
+        resident_registration_number,
         phone,
         fax,
+        address,
+        postal_code,
         business_type,
         business_category,
-        item,
-        invoice,
+        electronic_invoice_input,
+        email,
         collection_date,
+        remarks,
         closing_date,
+        invoice,
+        contact_person,
+        contact_person_phone,
         created_at,
         updated_at
       FROM accounts
@@ -51,16 +59,24 @@ export class AccountModel {
     return (rows as any[]).map((row) => ({
       id: row.id,
       name: row.name,
+      printName: row.print_name,
       registrationNumber: row.registration_number,
       representative: row.representative,
+      residentRegistrationNumber: row.resident_registration_number,
       phone: row.phone,
       fax: row.fax,
+      address: row.address,
+      postalCode: row.postal_code,
       businessType: row.business_type,
       businessCategory: row.business_category,
-      item: row.item,
-      invoice: row.invoice,
+      electronicInvoiceInput: row.electronic_invoice_input,
+      email: row.email,
       collectionDate: row.collection_date,
+      remarks: row.remarks,
       closingDate: row.closing_date,
+      invoice: row.invoice,
+      contactPerson: row.contact_person,
+      contactPersonPhone: row.contact_person_phone,
       created_at: row.created_at,
       updated_at: row.updated_at,
     })) as Account[]
@@ -99,16 +115,24 @@ export class AccountModel {
       SELECT 
         id,
         name,
+        print_name,
         registration_number,
         representative,
+        resident_registration_number,
         phone,
         fax,
+        address,
+        postal_code,
         business_type,
         business_category,
-        item,
-        invoice,
+        electronic_invoice_input,
+        email,
         collection_date,
+        remarks,
         closing_date,
+        invoice,
+        contact_person,
+        contact_person_phone,
         created_at,
         updated_at,
         created_by,
@@ -123,16 +147,24 @@ export class AccountModel {
     return {
       id: row.id,
       name: row.name,
+      printName: row.print_name,
       registrationNumber: row.registration_number,
       representative: row.representative,
+      residentRegistrationNumber: row.resident_registration_number,
       phone: row.phone,
       fax: row.fax,
+      address: row.address,
+      postalCode: row.postal_code,
       businessType: row.business_type,
       businessCategory: row.business_category,
-      item: row.item,
-      invoice: row.invoice,
+      electronicInvoiceInput: row.electronic_invoice_input,
+      email: row.email,
       collectionDate: row.collection_date,
+      remarks: row.remarks,
       closingDate: row.closing_date,
+      invoice: row.invoice,
+      contactPerson: row.contact_person,
+      contactPersonPhone: row.contact_person_phone,
       created_at: row.created_at,
       updated_at: row.updated_at,
       created_by: row.created_by,
@@ -169,32 +201,48 @@ export class AccountModel {
       INSERT INTO accounts (
         id,
         name,
+        print_name,
         registration_number,
         representative,
+        resident_registration_number,
         phone,
         fax,
+        address,
+        postal_code,
         business_type,
         business_category,
-        item,
-        invoice,
+        electronic_invoice_input,
+        email,
         collection_date,
+        remarks,
         closing_date,
+        invoice,
+        contact_person,
+        contact_person_phone,
         created_by
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `
     const params = [
       accountId,
       accountData.name,
+      accountData.printName || null,
       accountData.registrationNumber || null,
       accountData.representative || null,
+      accountData.residentRegistrationNumber || null,
       accountData.phone || null,
       accountData.fax || null,
+      accountData.address || null,
+      accountData.postalCode || null,
       accountData.businessType || null,
       accountData.businessCategory || null,
-      accountData.item || null,
-      accountData.invoice || null,
+      accountData.electronicInvoiceInput || null,
+      accountData.email || null,
       accountData.collectionDate || null,
+      accountData.remarks || null,
       accountData.closingDate || null,
+      accountData.invoice || null,
+      accountData.contactPerson || null,
+      accountData.contactPersonPhone || null,
       accountData.created_by || null,
     ]
 
@@ -223,6 +271,10 @@ export class AccountModel {
       fields.push('name = ?')
       params.push(accountData.name)
     }
+    if (accountData.printName !== undefined) {
+      fields.push('print_name = ?')
+      params.push(accountData.printName)
+    }
     if (accountData.registrationNumber !== undefined) {
       fields.push('registration_number = ?')
       params.push(accountData.registrationNumber)
@@ -230,6 +282,10 @@ export class AccountModel {
     if (accountData.representative !== undefined) {
       fields.push('representative = ?')
       params.push(accountData.representative)
+    }
+    if (accountData.residentRegistrationNumber !== undefined) {
+      fields.push('resident_registration_number = ?')
+      params.push(accountData.residentRegistrationNumber)
     }
     if (accountData.phone !== undefined) {
       fields.push('phone = ?')
@@ -239,6 +295,14 @@ export class AccountModel {
       fields.push('fax = ?')
       params.push(accountData.fax)
     }
+    if (accountData.address !== undefined) {
+      fields.push('address = ?')
+      params.push(accountData.address)
+    }
+    if (accountData.postalCode !== undefined) {
+      fields.push('postal_code = ?')
+      params.push(accountData.postalCode)
+    }
     if (accountData.businessType !== undefined) {
       fields.push('business_type = ?')
       params.push(accountData.businessType)
@@ -247,21 +311,37 @@ export class AccountModel {
       fields.push('business_category = ?')
       params.push(accountData.businessCategory)
     }
-    if (accountData.item !== undefined) {
-      fields.push('item = ?')
-      params.push(accountData.item)
+    if (accountData.electronicInvoiceInput !== undefined) {
+      fields.push('electronic_invoice_input = ?')
+      params.push(accountData.electronicInvoiceInput)
     }
-    if (accountData.invoice !== undefined) {
-      fields.push('invoice = ?')
-      params.push(accountData.invoice)
+    if (accountData.email !== undefined) {
+      fields.push('email = ?')
+      params.push(accountData.email)
     }
     if (accountData.collectionDate !== undefined) {
       fields.push('collection_date = ?')
       params.push(accountData.collectionDate)
     }
+    if (accountData.remarks !== undefined) {
+      fields.push('remarks = ?')
+      params.push(accountData.remarks)
+    }
     if (accountData.closingDate !== undefined) {
       fields.push('closing_date = ?')
       params.push(accountData.closingDate)
+    }
+    if (accountData.invoice !== undefined) {
+      fields.push('invoice = ?')
+      params.push(accountData.invoice)
+    }
+    if (accountData.contactPerson !== undefined) {
+      fields.push('contact_person = ?')
+      params.push(accountData.contactPerson)
+    }
+    if (accountData.contactPersonPhone !== undefined) {
+      fields.push('contact_person_phone = ?')
+      params.push(accountData.contactPersonPhone)
     }
     if (accountData.updated_by !== undefined) {
       fields.push('updated_by = ?')

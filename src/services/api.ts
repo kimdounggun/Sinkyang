@@ -139,16 +139,24 @@ export const userApi = {
 export interface Account {
   id: string
   name: string // 거래처명
+  printName?: string // 출력명
   registrationNumber?: string // 등록번호
   representative?: string // 대표자
+  residentRegistrationNumber?: string // 주민번호
   phone?: string // 전화번호
   fax?: string // FAX
+  address?: string // 주소
+  postalCode?: string // 우편번호
   businessType?: string // 업태
   businessCategory?: string // 업종
-  item?: string // 항목
-  invoice?: string // 계산서
+  electronicInvoiceInput?: string // 전자계산서 입력항목
+  email?: string // E-mail
   collectionDate?: string // 수금일
+  remarks?: string // 비고
   closingDate?: string // 마감일
+  invoice?: string // 계산서
+  contactPerson?: string // 담당자
+  contactPersonPhone?: string // 담당자 전화번호
   created_at?: string
   updated_at?: string
 }
@@ -156,31 +164,47 @@ export interface Account {
 export interface CreateAccountDto {
   id: string
   name: string
+  printName?: string
   registrationNumber?: string
   representative?: string
+  residentRegistrationNumber?: string
   phone?: string
   fax?: string
+  address?: string
+  postalCode?: string
   businessType?: string
   businessCategory?: string
-  item?: string
-  invoice?: string
+  electronicInvoiceInput?: string
+  email?: string
   collectionDate?: string
+  remarks?: string
   closingDate?: string
+  invoice?: string
+  contactPerson?: string
+  contactPersonPhone?: string
 }
 
 export interface UpdateAccountDto {
   id?: string
   name?: string
+  printName?: string
   registrationNumber?: string
   representative?: string
+  residentRegistrationNumber?: string
   phone?: string
   fax?: string
+  address?: string
+  postalCode?: string
   businessType?: string
   businessCategory?: string
-  item?: string
-  invoice?: string
+  electronicInvoiceInput?: string
+  email?: string
   collectionDate?: string
+  remarks?: string
   closingDate?: string
+  invoice?: string
+  contactPerson?: string
+  contactPersonPhone?: string
 }
 
 export interface AccountListResponse {
