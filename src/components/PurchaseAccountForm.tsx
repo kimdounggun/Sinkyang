@@ -206,6 +206,26 @@ const PurchaseAccountForm = ({ account, onSave, isOpen, isEditMode = false }: Pu
         // 추가 모드: F2로 저장, 수정 모드: F3로 저장
         const shouldSave = (account && e.key === 'F3') || (!account && e.key === 'F2')
         if (shouldSave) {
+          // 추가 모드이고 F2를 누른 경우: 모든 필드가 비어있으면 저장하지 않고 상위 핸들러가 처리하도록
+          if (!account && e.key === 'F2') {
+            const form = document.querySelector('.inline-form-content')
+            if (form) {
+              const inputs = form.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]), textarea') as NodeListOf<HTMLInputElement | HTMLTextAreaElement>
+              let hasValue = false
+              
+              inputs.forEach((input) => {
+                if (input.value && input.value.trim() !== '') {
+                  hasValue = true
+                }
+              })
+              
+              // 모든 필드가 비어있으면 이벤트를 상위 핸들러에 전달 (취소 처리)
+              if (!hasValue) {
+                return // 이벤트를 전달하여 상위 핸들러가 취소 처리
+              }
+            }
+          }
+          
           e.preventDefault()
           e.stopPropagation()
           e.stopImmediatePropagation() // 상위 핸들러가 처리하지 못하도록 차단
@@ -286,6 +306,7 @@ const PurchaseAccountForm = ({ account, onSave, isOpen, isEditMode = false }: Pu
           className="inline-form-content"
         >
             <div className="form-fields">
+              {/* Row 1: 거래처명(왼), 출력명(오) */}
               <div className="form-row">
                 <div className="form-group">
                   <label>
@@ -312,35 +333,14 @@ const PurchaseAccountForm = ({ account, onSave, isOpen, isEditMode = false }: Pu
                 </div>
               </div>
 
+              {/* Row 2: 대표자(왼), 전화번호(오) */}
               <div className="form-row">
-                <div className="form-group account-form-short-field">
+                <div className="form-group">
                   <label>대표자</label>
                   <input
                     type="text"
                     value={formData.representative}
                     onChange={(e) => handleChange('representative', e.target.value)}
-                    disabled={loading || !isEditMode}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>주소</label>
-                  <input
-                    type="text"
-                    value={formData.address}
-                    onChange={(e) => handleChange('address', e.target.value)}
-                    disabled={loading || !isEditMode}
-                  />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group account-form-short-field">
-                  <label>우편번호</label>
-                  <input
-                    type="text"
-                    value={formData.postalCode}
-                    onChange={(e) => handleChange('postalCode', e.target.value)}
                     disabled={loading || !isEditMode}
                   />
                 </div>
@@ -356,7 +356,18 @@ const PurchaseAccountForm = ({ account, onSave, isOpen, isEditMode = false }: Pu
                 </div>
               </div>
 
+              {/* Row 3: 주소(왼), 등록번호(오) */}
               <div className="form-row">
+                <div className="form-group">
+                  <label>주소</label>
+                  <input
+                    type="text"
+                    value={formData.address}
+                    onChange={(e) => handleChange('address', e.target.value)}
+                    disabled={loading || !isEditMode}
+                  />
+                </div>
+
                 <div className="form-group">
                   <label>등록번호</label>
                   <input
@@ -371,8 +382,21 @@ const PurchaseAccountForm = ({ account, onSave, isOpen, isEditMode = false }: Pu
                     <span className="error-message">{errors.registrationNumber}</span>
                   )}
                 </div>
+              </div>
 
-                <div className="form-group account-form-short-field">
+              {/* Row 4: 우편물(왼), FAX(오) */}
+              <div className="form-row">
+                <div className="form-group">
+                  <label>우편물</label>
+                  <input
+                    type="text"
+                    value={formData.postalCode}
+                    onChange={(e) => handleChange('postalCode', e.target.value)}
+                    disabled={loading || !isEditMode}
+                  />
+                </div>
+
+                <div className="form-group">
                   <label>FAX</label>
                   <input
                     type="text"
@@ -383,9 +407,10 @@ const PurchaseAccountForm = ({ account, onSave, isOpen, isEditMode = false }: Pu
                 </div>
               </div>
 
+              {/* Row 5: 업태(왼), 종목(오) */}
               <div className="form-row">
-                <div className="form-group account-form-short-field">
-                  <label>업 태</label>
+                <div className="form-group">
+                  <label>업태</label>
                   <input
                     type="text"
                     value={formData.businessType}
@@ -394,8 +419,8 @@ const PurchaseAccountForm = ({ account, onSave, isOpen, isEditMode = false }: Pu
                   />
                 </div>
 
-                <div className="form-group account-form-short-field">
-                  <label>종 목</label>
+                <div className="form-group">
+                  <label>종목</label>
                   <input
                     type="text"
                     value={formData.businessCategory}
@@ -405,14 +430,15 @@ const PurchaseAccountForm = ({ account, onSave, isOpen, isEditMode = false }: Pu
                 </div>
               </div>
 
+              {/* Row 6: 비고(왼 textarea), 입금계좌(오) */}
               <div className="form-row">
                 <div className="form-group">
                   <label>비고</label>
-                  <input
-                    type="text"
+                  <textarea
                     value={formData.remarks}
                     onChange={(e) => handleChange('remarks', e.target.value)}
                     disabled={loading || !isEditMode}
+                    rows={3}
                   />
                 </div>
 
@@ -427,27 +453,6 @@ const PurchaseAccountForm = ({ account, onSave, isOpen, isEditMode = false }: Pu
                 </div>
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label>지불일</label>
-                  <input
-                    type="text"
-                    value={formData.paymentDate}
-                    onChange={(e) => handleChange('paymentDate', e.target.value)}
-                    disabled={loading || !isEditMode}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>마감일</label>
-                  <input
-                    type="text"
-                    value={formData.closingDate}
-                    onChange={(e) => handleChange('closingDate', e.target.value)}
-                    disabled={loading || !isEditMode}
-                  />
-                </div>
-              </div>
             </div>
 
         </form>

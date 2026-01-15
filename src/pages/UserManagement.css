@@ -2,9 +2,9 @@
   width: 100%;
 }
 
-/* UserManagement 페이지 전용: 제목 없을 때 버튼 오른쪽 정렬 */
+/* UserManagement 페이지 전용: 제목 없을 때 버튼 왼쪽 정렬 */
 .user-management .list-page-template .section .section-header:has(.section-actions:only-child) {
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .table-actions {

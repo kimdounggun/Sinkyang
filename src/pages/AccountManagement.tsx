@@ -223,12 +223,57 @@ const AccountManagement = () => {
       }
       // F2: 추가 모드 토글 또는 저장
       else if (e.key === 'F2') {
-        e.preventDefault()
-        e.stopPropagation()
-        e.stopImmediatePropagation()
-        // 추가 모드이고 편집 중일 때: AccountForm의 F2 핸들러가 저장 처리 (이미 처리됨)
-        // 추가 모드가 아닐 때: 추가 모드로 진입
-        if (!isEditModeRef.current || editingAccount !== undefined) {
+        // 추가 모드이고 편집 중일 때: 필드가 모두 비어있으면 취소
+        if (isEditModeRef.current && editingAccount === undefined) {
+          // 모든 입력 필드 확인
+          const form = document.querySelector('.inline-form-content')
+          if (form) {
+            const inputs = form.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]), textarea') as NodeListOf<HTMLInputElement | HTMLTextAreaElement>
+            let hasValue = false
+            
+            inputs.forEach((input) => {
+              if (input.value && input.value.trim() !== '') {
+                hasValue = true
+              }
+            })
+            
+            // 모든 필드가 비어있으면 추가 모드 취소
+            if (!hasValue) {
+              e.preventDefault()
+              e.stopPropagation()
+              e.stopImmediatePropagation() // AccountForm의 핸들러가 처리하지 못하도록
+              
+              setIsEditMode(false)
+              isEditModeRef.current = false
+              handleCancel()
+              
+              // 포커스 제거
+              inputs.forEach((input) => {
+                if (input instanceof HTMLElement) {
+                  input.blur()
+                }
+              })
+              
+              // 테이블에 포커스
+              setTimeout(() => {
+                const table = document.querySelector('.data-table')
+                if (table) {
+                  (table as HTMLElement).focus()
+                } else {
+                  document.body.focus()
+                }
+              }, 50)
+              
+              return // 이벤트 전파 중단
+            }
+          }
+          // 필드에 값이 있으면 이벤트를 전달하여 AccountForm의 F2 핸들러가 저장 처리
+        } else {
+          // 추가 모드가 아닐 때: 추가 모드로 진입
+          e.preventDefault()
+          e.stopPropagation()
+          e.stopImmediatePropagation()
+          
           handleAdd()
           setIsEditMode(true) // 추가 모드일 때는 편집 가능
           isEditModeRef.current = true // ref도 즉시 업데이트
@@ -378,8 +423,9 @@ const AccountManagement = () => {
       }
     }
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    // capture phase에서 먼저 처리하여 AccountForm의 핸들러보다 먼저 실행
+    document.addEventListener('keydown', handleKeyDown, true)
+    return () => document.removeEventListener('keydown', handleKeyDown, true)
   }, [isFormOpen, isSearchOpen, selectedAccount, accounts, handleAdd, handleEdit, handleDelete, handleRowClick, setIsSearchOpen, showConfirmChecked, fetchItems])
 
   const columns: TableColumn<Account>[] = [

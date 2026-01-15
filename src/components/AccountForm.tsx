@@ -180,6 +180,26 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
         // 추가 모드: F2로 저장, 수정 모드: F3로 저장
         const shouldSave = (account && e.key === 'F3') || (!account && e.key === 'F2')
         if (shouldSave) {
+          // 추가 모드이고 F2를 누른 경우: 모든 필드가 비어있으면 저장하지 않고 상위 핸들러가 처리하도록
+          if (!account && e.key === 'F2') {
+            const form = document.querySelector('.inline-form-content')
+            if (form) {
+              const inputs = form.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]), textarea') as NodeListOf<HTMLInputElement | HTMLTextAreaElement>
+              let hasValue = false
+              
+              inputs.forEach((input) => {
+                if (input.value && input.value.trim() !== '') {
+                  hasValue = true
+                }
+              })
+              
+              // 모든 필드가 비어있으면 이벤트를 상위 핸들러에 전달 (취소 처리)
+              if (!hasValue) {
+                return // 이벤트를 전달하여 상위 핸들러가 취소 처리
+              }
+            }
+          }
+          
           e.preventDefault()
           e.stopPropagation()
           e.stopImmediatePropagation() // 상위 핸들러가 처리하지 못하도록 차단
