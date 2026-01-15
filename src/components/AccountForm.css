@@ -110,53 +110,49 @@
 
 .inline-form-content .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 70px 220px 70px 220px 70px 220px 70px 220px;
   gap: 4px 10px;
-  margin-bottom: 3px;
-  align-items: start;
+  margin-bottom: 4px;
+  align-items: center;
 }
 
-/* 3개 컬럼 행 */
+/* 3개 필드 행 (라벨/입력 3쌍 = 6칸) */
 .inline-form-content .form-row.account-form-row-3 {
-  grid-template-columns: 1fr 1fr auto;
-  gap: 4px 8px;
+  grid-template-columns: 70px 220px 70px 220px 70px 220px;
+  gap: 4px 10px;
 }
 
-/* 4개 컬럼 행 */
-.inline-form-content .form-row.account-form-row-4 {
-  grid-template-columns: auto auto 1fr 1fr;
-  gap: 4px 8px;
-}
-
-/* 주소 행 (작은 필드 + 긴 필드) */
+/* 주소 행 - 1개 필드만 */
 .inline-form-content .form-row.account-form-address-row {
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 70px 1fr;
 }
 
-/* 우편물 행 */
+/* 우편물 행 - 1개 필드만 */
 .inline-form-content .form-row.account-form-postal-row {
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 70px 220px;
 }
 
-/* 비고 행 (수금일, 비고, 담당자 - 3개 컬럼) */
+/* 비고 행 (수금일, 비고, 담당자) - 특별 처리 */
 .inline-form-content .form-row.account-form-remarks-row {
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 70px 220px 70px 1fr 70px 220px;
   align-items: start;
 }
 
+/* form-group을 contents로 만들어서 내부 요소가 직접 그리드에 배치되도록 */
 .inline-form-content .form-group {
   margin-bottom: 0;
-  display: flex;
-  flex-direction: column;
+  display: contents;
 }
 
 .inline-form-content .form-group label {
-  margin-bottom: 2px;
-  font-size: 11px;
+  margin: 0;
+  font-size: 12px;
   font-weight: 500;
   color: #333;
   white-space: nowrap;
   line-height: 1.2;
+  display: flex;
+  align-items: center;
 }
 
 .inline-form-content .form-group input,
@@ -168,6 +164,19 @@
   border: 1px solid #ccc;
   border-radius: 2px;
   line-height: 1.2;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 라벨과 입력이 각각 별도 그리드 칸을 차지하도록 */
+.inline-form-content .form-group label {
+  grid-column: auto;
+}
+
+.inline-form-content .form-group input,
+.inline-form-content .form-group select,
+.inline-form-content .form-group textarea {
+  grid-column: auto;
 }
 
 .inline-form-content .form-group textarea {
@@ -201,23 +210,22 @@
   font-size: 11px;
 }
 
-/* 짧은 필드가 있는 행의 경우 첫 번째 컬럼을 더 넓게 */
+/* 짧은 필드가 있는 행도 동일한 4칸 그리드 유지 */
 .inline-form-content .form-row:has(.account-form-short-field) {
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 70px 220px 70px 220px;
 }
 
-.inline-form-content .form-row:has(.account-form-short-field) .account-form-short-field {
-  flex: 0 0 auto;
-}
-
-/* 라디오 버튼이 있는 그룹 */
+/* 라디오 버튼이 있는 그룹도 grid로 유지 */
 .inline-form-content .form-group:has(.account-form-invoice-options) {
-  display: flex;
-  flex-direction: column;
+  display: grid !important;
+  grid-template-columns: 70px 1fr !important;
+  align-items: center !important;
 }
 
 .inline-form-content .form-group:has(.account-form-invoice-options) label {
-  margin-bottom: 2px;
+  margin: 0 !important;
+  margin-bottom: 0 !important;
+  grid-column: 1 !important;
 }
 
 .inline-form-actions {
@@ -227,4 +235,41 @@
   margin-top: 8px;
   padding-top: 8px;
   border-top: 1px solid #e0e0e0;
+}
+
+/* form-group이 contents이므로 섹션 헤더만 예외 처리 */
+.inline-form-content .form-group.account-form-section-header {
+  display: block !important;
+  grid-column: span 2;
+  background-color: #e8f5e9;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.inline-form-content .form-group.account-form-section-header label {
+  margin: 0;
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+/* 에러 메시지 처리 */
+.inline-form-content .form-group .error-message {
+  grid-column: span 2;
+  font-size: 10px;
+  margin-top: 2px;
+  color: #d32f2f;
+}
+
+/* 비고 필드 - textarea가 2칸 차지 */
+.inline-form-content .account-form-remarks-field textarea {
+  grid-column: span 2;
+}
+
+/* 라디오 옵션 그룹 */
+.inline-form-content .account-form-invoice-options {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
 }

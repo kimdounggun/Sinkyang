@@ -347,7 +347,7 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
           className="inline-form-content"
         >
             <div className="form-fields">
-              {/* Row 1: 거래처명(왼), 출력명(오) */}
+              {/* Row 1: 거래처명, 출력명, 등록번호 */}
               <div className="form-row">
                 <div className="form-group account-form-medium-field">
                   <label>
@@ -372,10 +372,7 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                     disabled={loading || !isEditMode}
                   />
                 </div>
-              </div>
 
-              {/* Row 2: 등록번호(왼), (오른쪽 빈칸) */}
-              <div className="form-row">
                 <div className="form-group account-form-very-short-field">
                   <label>등록번호</label>
                   <input
@@ -390,10 +387,9 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                     <span className="error-message">{errors.registrationNumber}</span>
                   )}
                 </div>
-                <div className="form-group"></div>
               </div>
 
-              {/* Row 3: 대표자(왼), 주민번호(오) */}
+              {/* Row 2: 대표자, 주민번호, 전화번호, FAX */}
               <div className="form-row">
                 <div className="form-group account-form-short-field">
                   <label>대표자</label>
@@ -415,10 +411,7 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                     maxLength={14}
                   />
                 </div>
-              </div>
 
-              {/* Row 4: 전화번호(왼), FAX(오) */}
-              <div className="form-row">
                 <div className="form-group account-form-medium-field">
                   <label>전화번호</label>
                   <input
@@ -491,7 +484,7 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                 </div>
               </div>
 
-              {/* Row 8: 전자계산서 입력항목(헤더 왼), E-mail(오) */}
+              {/* Row 8: 전자계산서 입력항목(헤더 왼), E-mail(오), 담당자(오른쪽) */}
               <div className="form-row">
                 <div className="form-group account-form-section-header">
                   <label>전자계산서 입력항목</label>
@@ -502,6 +495,15 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleChange('email', e.target.value)}
+                    disabled={loading || !isEditMode}
+                  />
+                </div>
+                <div className="form-group account-form-very-short-field">
+                  <label>담당자</label>
+                  <input
+                    type="text"
+                    value={formData.contactPerson}
+                    onChange={(e) => handleChange('contactPerson', e.target.value)}
                     disabled={loading || !isEditMode}
                   />
                 </div>
@@ -539,7 +541,7 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                 <div className="form-group"></div>
               </div>
 
-              {/* Row 10: 수금일(왼), 비고(중간), 담당자(오) */}
+              {/* Row 10: 수금일(왼), 비고(중간) */}
               <div className="form-row account-form-remarks-row">
                 <div className="form-group account-form-very-short-field">
                   <label>수금일</label>
@@ -558,16 +560,6 @@ const AccountForm = ({ account, onSave, isOpen, isEditMode = false }: AccountFor
                     onChange={(e) => handleChange('remarks', e.target.value)}
                     disabled={loading || !isEditMode}
                     rows={2}
-                  />
-                </div>
-
-                <div className="form-group account-form-very-short-field">
-                  <label>담당자</label>
-                  <input
-                    type="text"
-                    value={formData.contactPerson}
-                    onChange={(e) => handleChange('contactPerson', e.target.value)}
-                    disabled={loading || !isEditMode}
                   />
                 </div>
               </div>
