@@ -156,9 +156,6 @@ const PurchaseAccountManagement = () => {
   // 키보드 단축키 처리 (F1, F2, F3, F4)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // SearchModal이 열려있으면 단축키 무시 (인라인 폼은 항상 열려있으므로 isFormOpen은 체크하지 않음)
-      if (isSearchOpen) return
-
       // F1-F4 키와 방향키는 입력 필드에서도 작동하도록 예외 처리
       const isFKey = e.key === 'F1' || e.key === 'F2' || e.key === 'F3' || e.key === 'F4'
       const isArrowKey = e.key === 'ArrowUp' || e.key === 'ArrowDown'
@@ -177,7 +174,7 @@ const PurchaseAccountManagement = () => {
         return
       }
 
-      // F1: 검색 (행 선택 안 되어 있을 때만)
+      // F1: 검색 (검색 폼이 열려있을 때도 브라우저 기본 F1 도움말을 막기 위해 항상 처리)
       if (e.key === 'F1') {
         e.preventDefault()
         e.stopPropagation()
@@ -190,12 +187,16 @@ const PurchaseAccountManagement = () => {
             activeEl.blur()
           }
         }
-        if (!selectedAccount) {
-          setIsSearchOpen(true)
+        // 이미 검색 폼이 열려 있다면 더 이상 처리하지 않고 여기서 종료 (브라우저 기본만 막음)
+        if (isSearchOpen) {
+          return
         }
+        // 검색 폼이 닫혀 있을 때만 열기
+        setIsSearchOpen(true)
       }
       // F2: 추가 모드 토글 또는 저장
       else if (e.key === 'F2') {
+        if (isSearchOpen) return
         // 추가 모드이고 편집 중일 때: 필드가 모두 비어있으면 취소
         if (isEditModeRef.current && editingAccount === undefined) {
           // 모든 입력 필드 확인
@@ -264,6 +265,7 @@ const PurchaseAccountManagement = () => {
       }
       // F3: 수정 모드 토글 또는 저장
       else if (e.key === 'F3') {
+        if (isSearchOpen) return
         if (selectedAccount) {
           if (isEditModeRef.current) {
             // 수정 모드일 때: PurchaseAccountForm의 F3 핸들러가 처리
@@ -282,6 +284,7 @@ const PurchaseAccountManagement = () => {
       }
       // F4: 삭제 (체크된 항목이 있으면 복수 삭제, 없으면 단일 삭제)
       else if (e.key === 'F4') {
+        if (isSearchOpen) return
         e.preventDefault()
         e.stopPropagation()
         // 활성 요소에서 포커스 제거 (검은색 테두리 방지)
@@ -324,6 +327,7 @@ const PurchaseAccountManagement = () => {
       }
       // ArrowUp: 위 행 선택 (수정 모드가 아닐 때만)
       else if (e.key === 'ArrowUp' && !isEditModeRef.current) {
+        if (isSearchOpen) return
         e.preventDefault()
         e.stopPropagation()
         // 모든 입력 필드에서 포커스 강제 제거
@@ -360,6 +364,7 @@ const PurchaseAccountManagement = () => {
       }
       // ArrowDown: 아래 행 선택 (수정 모드가 아닐 때만)
       else if (e.key === 'ArrowDown' && !isEditModeRef.current) {
+        if (isSearchOpen) return
         e.preventDefault()
         e.stopPropagation()
         // 모든 입력 필드에서 포커스 강제 제거

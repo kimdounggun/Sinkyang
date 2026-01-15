@@ -1,17 +1,19 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { User, CreateUserDto, UpdateUserDto } from '../services/api'
 import { Button } from './common'
 import { useAlert } from '../hooks/useAlert'
 import './UserForm.css'
+import './AccountForm.css'
 
 interface UserFormProps {
   user?: User
   onSave: (data: CreateUserDto | UpdateUserDto) => Promise<void>
   onCancel: () => void
   isOpen: boolean
+  isEditMode?: boolean
 }
 
-const UserForm = ({ user, onSave, onCancel, isOpen }: UserFormProps) => {
+const UserForm = ({ user, onSave, onCancel, isOpen, isEditMode = false }: UserFormProps) => {
   const [formData, setFormData] = useState({
     id: '',
     name: '',
@@ -21,11 +23,6 @@ const UserForm = ({ user, onSave, onCancel, isOpen }: UserFormProps) => {
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const { showError, AlertComponent } = useAlert()
-  const modalRef = useRef<HTMLDivElement>(null)
-  const headerRef = useRef<HTMLDivElement>(null)
-  const [position, setPosition] = useState({ x: 0, y: 0 })
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
     if (user) {
@@ -46,62 +43,6 @@ const UserForm = ({ user, onSave, onCancel, isOpen }: UserFormProps) => {
     setErrors({})
   }, [user, isOpen])
 
-  useEffect(() => {
-    if (isOpen) {
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') {
-          onCancel()
-        }
-      }
-      document.addEventListener('keydown', handleKeyDown)
-      return () => document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [isOpen, onCancel])
-
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (headerRef.current?.contains(e.target as Node) && modalRef.current) {
-      setIsDragging(true)
-      const rect = modalRef.current.getBoundingClientRect()
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      })
-    }
-  }
-
-  useEffect(() => {
-    if (!isDragging) return
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (modalRef.current) {
-        const centerX = window.innerWidth / 2
-        const centerY = window.innerHeight / 2
-        const newX = e.clientX - dragOffset.x - centerX + modalRef.current.offsetWidth / 2
-        const newY = e.clientY - dragOffset.y - centerY + modalRef.current.offsetHeight / 2
-        setPosition({ x: newX, y: newY })
-      }
-    }
-
-    const handleMouseUp = () => {
-      setIsDragging(false)
-    }
-
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
-    
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
-    }
-  }, [isDragging, dragOffset])
-
-  useEffect(() => {
-    if (!isOpen) {
-      setPosition({ x: 0, y: 0 })
-      setIsDragging(false)
-    }
-  }, [isOpen])
-
   const validate = () => {
     const newErrors: Record<string, string> = {}
 
@@ -121,9 +62,8 @@ const UserForm = ({ user, onSave, onCancel, isOpen }: UserFormProps) => {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+  // 저장 로직을 별도 함수로 분리
+  const performSave = useCallback(async () => {
     if (!validate()) {
       return
     }
@@ -149,16 +89,104 @@ const UserForm = ({ user, onSave, onCancel, isOpen }: UserFormProps) => {
         }
         await onSave(createData)
       }
-    } catch (error) {
-      console.error('저장 오류:', error)
-      showError(
-        error instanceof Error
-          ? error.message
-          : '저장 중 오류가 발생했습니다.'
-      )
+    } catch (error: any) {
+      showError(error.response?.data?.message || error.message || '저장 중 오류가 발생했습니다.')
     } finally {
       setLoading(false)
     }
+  }, [formData, user, onSave, showError])
+
+  // F2/F3 키로 저장 (추가 모드는 F2, 수정 모드는 F3)
+  const savingRef = useRef(false)
+  useEffect(() => {
+    if (isEditMode) {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        // 추가 모드: F2로 저장, 수정 모드: F3로 저장
+        const shouldSave = (user && e.key === 'F3') || (!user && e.key === 'F2')
+        if (shouldSave) {
+          // 추가 모드이고 F2를 누른 경우: 모든 필드가 비어있으면 저장하지 않고 상위 핸들러가 처리하도록
+          if (!user && e.key === 'F2') {
+            const form = document.querySelector('.inline-form-content')
+            if (form) {
+              const inputs = form.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]), textarea') as NodeListOf<HTMLInputElement | HTMLTextAreaElement>
+              let hasValue = false
+              
+              inputs.forEach((input) => {
+                if (input.value && input.value.trim() !== '') {
+                  hasValue = true
+                }
+              })
+              
+              // 모든 필드가 비어있으면 이벤트를 상위 핸들러에 전달 (취소 처리)
+              if (!hasValue) {
+                return // 이벤트를 전달하여 상위 핸들러가 취소 처리
+              }
+            }
+          }
+          
+          e.preventDefault()
+          e.stopPropagation()
+          e.stopImmediatePropagation() // 상위 핸들러가 처리하지 못하도록 차단
+          
+          // 이미 저장 중이면 무시
+          if (savingRef.current || loading) {
+            return
+          }
+          
+          // 저장 시작
+          savingRef.current = true
+          
+          // 저장 전에 모든 입력 필드 blur
+          const form = document.querySelector('.inline-form-content')
+          if (form) {
+            const inputs = form.querySelectorAll('input, textarea, select')
+            inputs.forEach((input) => {
+              if (input instanceof HTMLElement) {
+                input.blur()
+              }
+            })
+          }
+          
+          // 저장 실행
+          performSave()
+            .finally(() => {
+              // 저장 완료 후 약간의 지연 후 플래그 해제
+              setTimeout(() => {
+                savingRef.current = false
+              }, 100)
+            })
+            .catch((error) => {
+              console.error('저장 오류:', error)
+              savingRef.current = false
+            })
+        }
+      }
+      // capture phase에서 먼저 처리
+      document.addEventListener('keydown', handleKeyDown, true)
+      return () => document.removeEventListener('keydown', handleKeyDown, true)
+    }
+    // isEditMode가 false일 때도 포커스 정리
+    else {
+      savingRef.current = false // 수정 모드 해제 시 저장 플래그도 해제
+      const cleanup = () => {
+        const form = document.querySelector('.inline-form-content')
+        if (form) {
+          const inputs = form.querySelectorAll('input, textarea, select')
+          inputs.forEach((input) => {
+            if (input instanceof HTMLElement && document.activeElement === input) {
+              input.blur()
+            }
+          })
+        }
+      }
+      const timeoutId = setTimeout(cleanup, 50)
+      return () => clearTimeout(timeoutId)
+    }
+  }, [isEditMode, user, loading, performSave])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    await performSave()
   }
 
   const handleChange = (field: string, value: string) => {
@@ -168,106 +196,84 @@ const UserForm = ({ user, onSave, onCancel, isOpen }: UserFormProps) => {
     }
   }
 
-  if (!isOpen) return null
-
   return (
     <>
-      <div className="user-form-overlay" onClick={onCancel}>
-        <div
-          ref={modalRef}
-          className="user-form-modal"
-          onClick={(e) => e.stopPropagation()}
-          style={{
-            transform: position.x !== 0 || position.y !== 0 ? `translate(${position.x}px, ${position.y}px)` : undefined,
-            cursor: isDragging ? 'grabbing' : 'default',
+      <div className="inline-form-container">
+        <form
+          onSubmit={handleSubmit}
+          className="inline-form-content"
+          onKeyDown={(e) => {
+            // Enter로 전체 폼이 바로 제출되는 것을 방지하고, 명시적인 버튼 클릭/단축키로 저장하도록 유지
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              e.stopPropagation()
+            }
           }}
         >
-          <div
-            ref={headerRef}
-            className="user-form-header user-form-drag-handle"
-            onMouseDown={handleMouseDown}
-          >
-            <h2>{user ? '사용자 수정' : '사용자 추가'}</h2>
-            <button className="user-form-close" onClick={onCancel}>
-              <span className="material-icons">close</span>
-            </button>
+          <div className="form-fields">
+            <div className="form-row">
+              <div className="form-group">
+                <label>
+                  ID <span className="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.id}
+                  onChange={(e) => handleChange('id', e.target.value)}
+                  disabled={loading || !isEditMode}
+                  className={errors.id ? 'error' : ''}
+                />
+                {errors.id && <span className="error-message">{errors.id}</span>}
+              </div>
+
+              <div className="form-group">
+                <label>
+                  사용자명 <span className="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => handleChange('name', e.target.value)}
+                  disabled={loading || !isEditMode}
+                  className={errors.name ? 'error' : ''}
+                />
+                {errors.name && <span className="error-message">{errors.name}</span>}
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>
+                  등급 <span className="required">*</span>
+                </label>
+                <select
+                  value={formData.grade}
+                  onChange={(e) => handleChange('grade', e.target.value)}
+                  disabled={loading || !isEditMode}
+                >
+                  <option value="일반사용자">일반사용자</option>
+                  <option value="관리자">관리자</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>
+                  부서 <span className="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.department}
+                  onChange={(e) => handleChange('department', e.target.value)}
+                  disabled={loading || !isEditMode}
+                  className={errors.department ? 'error' : ''}
+                />
+                {errors.department && (
+                  <span className="error-message">{errors.department}</span>
+                )}
+              </div>
+            </div>
           </div>
-
-          <form onSubmit={handleSubmit} className="user-form-content">
-            <div className="form-fields">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>
-                    ID <span className="required">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.id}
-                    onChange={(e) => handleChange('id', e.target.value)}
-                    disabled={loading}
-                    className={errors.id ? 'error' : ''}
-                  />
-                  {errors.id && <span className="error-message">{errors.id}</span>}
-                </div>
-
-                <div className="form-group">
-                  <label>
-                    사용자명 <span className="required">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => handleChange('name', e.target.value)}
-                    disabled={loading}
-                    className={errors.name ? 'error' : ''}
-                  />
-                  {errors.name && <span className="error-message">{errors.name}</span>}
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>
-                    등급 <span className="required">*</span>
-                  </label>
-                  <select
-                    value={formData.grade}
-                    onChange={(e) => handleChange('grade', e.target.value)}
-                    disabled={loading}
-                  >
-                    <option value="일반사용자">일반사용자</option>
-                    <option value="관리자">관리자</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>
-                    부서 <span className="required">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.department}
-                    onChange={(e) => handleChange('department', e.target.value)}
-                    disabled={loading}
-                    className={errors.department ? 'error' : ''}
-                  />
-                  {errors.department && (
-                    <span className="error-message">{errors.department}</span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="user-form-actions">
-              <Button type="button" variant="secondary" onClick={onCancel} disabled={loading}>
-                취소
-              </Button>
-              <Button type="submit" variant="primary" disabled={loading}>
-                {loading ? '저장 중...' : user ? '수정' : '추가'}
-              </Button>
-            </div>
-          </form>
-        </div>
+        </form>
       </div>
 
       <AlertComponent />

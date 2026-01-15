@@ -2,24 +2,23 @@
   width: 100%;
 }
 
-/* UserManagement 페이지 전용: 제목 없을 때 버튼 왼쪽 정렬 */
-.user-management .list-page-template .section .section-header:has(.section-actions:only-child) {
+/* 상단 버튼 헤더 */
+.user-management .account-page-header {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.user-management .account-page-header .section-actions {
+  display: flex;
+  gap: 8px;
   justify-content: flex-start;
 }
 
-.table-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.table-actions .btn {
-  padding: 3px 6px;
-  font-size: 12px;
-  gap: 4px;
-  min-height: auto;
-}
-
-.table-actions .material-icons {
-  font-size: 16px;
+/* 체크박스 포커스 테두리 제거 */
+.user-management input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: none;
 }
