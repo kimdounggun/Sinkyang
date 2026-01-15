@@ -2,30 +2,17 @@ import { useState, useEffect, useRef } from 'react'
 import Button from './Button'
 import './SearchModal.css'
 
-export type SearchType = string
-
 interface SearchModalProps {
   isOpen: boolean
-  onSearch: (searchType: SearchType, searchValue: string) => void
+  onSearch: (searchValue: string) => void
   onClose: () => void
-  searchTypes?: { value: SearchType; label: string }[]
-  defaultSearchType?: SearchType
 }
-
-const defaultSearchTypes = [
-  { value: 'name' as SearchType, label: '사용자명' },
-  { value: 'department' as SearchType, label: '부서' },
-  { value: 'id' as SearchType, label: 'ID' },
-]
 
 const SearchModal = ({
   isOpen,
   onSearch,
   onClose,
-  searchTypes = defaultSearchTypes,
-  defaultSearchType = 'name',
 }: SearchModalProps) => {
-  const [searchType, setSearchType] = useState<SearchType>(defaultSearchType)
   const [searchValue, setSearchValue] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
@@ -37,13 +24,17 @@ const SearchModal = ({
   useEffect(() => {
     if (isOpen) {
       setSearchValue('')
-      setSearchType(defaultSearchType)
       // 모달이 열릴 때 입력 필드에 포커스
       setTimeout(() => {
         inputRef.current?.focus()
       }, 100)
     }
-  }, [isOpen, defaultSearchType])
+  }, [isOpen])
+
+  const handleSearch = () => {
+    onSearch(searchValue)
+    onClose()
+  }
 
   useEffect(() => {
     if (isOpen) {
@@ -64,7 +55,7 @@ const SearchModal = ({
         document.removeEventListener('keydown', handleEnter)
       }
     }
-  }, [isOpen, onClose, searchType, searchValue])
+  }, [isOpen, onClose, searchValue, onSearch])
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (headerRef.current?.contains(e.target as Node) && modalRef.current) {
@@ -110,11 +101,6 @@ const SearchModal = ({
     }
   }, [isOpen])
 
-  const handleSearch = () => {
-    onSearch(searchType, searchValue)
-    onClose()
-  }
-
   if (!isOpen) return null
 
   return (
@@ -140,26 +126,8 @@ const SearchModal = ({
         </div>
 
         <div className="search-modal-body">
-          <div className="search-type-group">
-            <label className="search-type-label">검색구분</label>
-            <div className="search-type-options">
-              {searchTypes.map((type) => (
-                <label key={type.value} className="search-type-option">
-                  <input
-                    type="radio"
-                    name="searchType"
-                    value={type.value}
-                    checked={searchType === type.value}
-                    onChange={(e) => setSearchType(e.target.value as SearchType)}
-                  />
-                  <span>{type.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
           <div className="search-input-group">
-            <label className="search-input-label">검색명</label>
+            <label className="search-input-label">검색어</label>
             <input
               ref={inputRef}
               type="text"
@@ -171,7 +139,7 @@ const SearchModal = ({
                   handleSearch()
                 }
               }}
-              placeholder="검색어를 입력하세요"
+              placeholder="검색어를 입력하세요 (전체 검색)"
             />
           </div>
         </div>

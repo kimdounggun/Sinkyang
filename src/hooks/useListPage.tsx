@@ -10,8 +10,8 @@ export interface ListPageApiService<T, CreateDto, UpdateDto> {
   delete: (id: string) => Promise<void>
 }
 
-// 검색 필터 함수 타입
-export type SearchFilterFn<T> = (item: T, searchType: string, searchValue: string) => boolean
+// 검색 필터 함수 타입 (통합 검색: 모든 필드에서 검색)
+export type SearchFilterFn<T> = (item: T, searchValue: string) => boolean
 
 // useListPage 훅 옵션
 export interface UseListPageOptions<T, CreateDto, UpdateDto> {
@@ -212,9 +212,9 @@ export const useListPage = <T extends Record<string, any>, CreateDto, UpdateDto>
     ]
   )
 
-  // 검색
+  // 검색 (통합 검색: 모든 필드에서 검색)
   const handleSearch = useCallback(
-    (searchType: string, searchValue: string) => {
+    (searchValue: string) => {
       if (!searchValue.trim()) {
         setItems(allItems)
         return
@@ -222,7 +222,7 @@ export const useListPage = <T extends Record<string, any>, CreateDto, UpdateDto>
 
       if (searchFilterFn) {
         const filteredItems = allItems.filter((item) =>
-          searchFilterFn(item, searchType, searchValue)
+          searchFilterFn(item, searchValue)
         )
         setItems(filteredItems)
       } else {
