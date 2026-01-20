@@ -19,26 +19,6 @@ const Layout = ({ children }: LayoutProps) => {
             <span className="company-name">Sinkyang</span>
           </div>
         </div>
-        <div className="header-center">
-          <nav className="header-nav">
-            <button className="nav-btn">
-              <span className="material-icons">notifications</span>
-              <span>알림</span>
-            </button>
-            <button className="nav-btn">
-              <span className="material-icons">list</span>
-              <span>목록</span>
-            </button>
-            <button className="nav-btn">
-              <span className="material-icons">send</span>
-              <span>전송</span>
-            </button>
-            <button className="nav-btn">
-              <span className="material-icons">settings</span>
-              <span>설정</span>
-            </button>
-          </nav>
-        </div>
       </header>
 
       <div className="layout-body">
