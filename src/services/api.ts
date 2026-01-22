@@ -405,3 +405,91 @@ export const purchaseAccountApi = {
     })
   },
 }
+
+// ==================== Field (현장) API ====================
+
+export interface Field {
+  id: string
+  accountId: string // 거래처 ID
+  accountName?: string // 거래처명 (JOIN으로 가져옴)
+  fieldName: string // 현장명
+  created_at?: string
+  updated_at?: string
+}
+
+export interface CreateFieldDto {
+  id?: string
+  accountId: string
+  fieldName: string
+}
+
+export interface UpdateFieldDto {
+  id?: string
+  accountId?: string
+  fieldName?: string
+}
+
+export interface FieldListResponse {
+  success: boolean
+  data: Field[]
+  pagination?: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
+// 현장 API
+export const fieldApi = {
+  // 전체 현장 목록 조회
+  getAll: async (params?: {
+    page?: number
+    limit?: number
+    search?: string
+    accountId?: string
+  }): Promise<FieldListResponse> => {
+    const queryParams = new URLSearchParams()
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, String(value))
+        }
+      })
+    }
+    const query = queryParams.toString()
+    const response = await fetchApi<FieldListResponse>(`/fields${query ? `?${query}` : ''}`)
+    return response as FieldListResponse
+  },
+
+  // 특정 현장 조회
+  getById: async (id: string): Promise<Field> => {
+    const response = await fetchApi<Field>(`/fields/${id}`)
+    return response.data!
+  },
+
+  // 현장 생성
+  create: async (fieldData: CreateFieldDto): Promise<Field> => {
+    const response = await fetchApi<Field>('/fields', {
+      method: 'POST',
+      body: JSON.stringify(fieldData),
+    })
+    return response.data!
+  },
+
+  // 현장 수정
+  update: async (id: string, fieldData: UpdateFieldDto): Promise<Field> => {
+    const response = await fetchApi<Field>(`/fields/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(fieldData),
+    })
+    return response.data!
+  },
+
+  // 현장 삭제
+  delete: async (id: string): Promise<void> => {
+    await fetchApi(`/fields/${id}`, {
+      method: 'DELETE',
+    })
+  },
+}

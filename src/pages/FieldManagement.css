@@ -1,0 +1,17 @@
+.field-management {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.field-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.field-page-header .section-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}

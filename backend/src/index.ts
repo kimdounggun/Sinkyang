@@ -5,6 +5,7 @@ import { testConnection } from './config/database'
 import userRoutes from './routes/user.routes'
 import accountRoutes from './routes/account.routes'
 import purchaseAccountRoutes from './routes/purchaseAccount.routes'
+import fieldRoutes from './routes/field.routes'
 
 dotenv.config()
 
@@ -25,6 +26,7 @@ app.get('/health', (req, res) => {
 app.use('/api/users', userRoutes)
 app.use('/api/accounts', accountRoutes)
 app.use('/api/purchase-accounts', purchaseAccountRoutes)
+app.use('/api/fields', fieldRoutes)
 
 // 404 handler
 app.use((req, res) => {
@@ -59,6 +61,7 @@ const startServer = async () => {
     console.log(`👥 사용자 API: http://localhost:${PORT}/api/users`)
     console.log(`🏢 거래처 API: http://localhost:${PORT}/api/accounts`)
     console.log(`🛒 매입거래처 API: http://localhost:${PORT}/api/purchase-accounts`)
+    console.log(`🏗️ 현장 API: http://localhost:${PORT}/api/fields`)
   })
 
   server.on('error', (err: NodeJS.ErrnoException) => {

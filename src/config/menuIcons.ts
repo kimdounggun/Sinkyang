@@ -16,4 +16,5 @@ export const menuIcons: Record<string, string> = {
   '/assets': 'corporate_fare',
   '/standard': 'library_books',
   '/users': 'people',
+  '/fields': 'construction',
 }

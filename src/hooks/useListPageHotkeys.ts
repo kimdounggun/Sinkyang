@@ -176,6 +176,11 @@ export const useListPageHotkeys = <T extends Record<string, any>>(
       else if (e.key === 'F3') {
         if (isSearchOpen) return
 
+        // F3 키는 항상 기본 동작 방지
+        e.preventDefault()
+        e.stopPropagation()
+        e.stopImmediatePropagation()
+
         if (selectedItem) {
           if (isEditModeRef.current) {
             // 수정 모드일 때: Form의 F3 핸들러가 처리
@@ -183,9 +188,6 @@ export const useListPageHotkeys = <T extends Record<string, any>>(
             return
           } else {
             // 수정 모드가 아닐 때: 수정 모드로 전환
-            e.preventDefault()
-            e.stopPropagation()
-            e.stopImmediatePropagation()
             handleEdit(selectedItem)
             setIsEditMode(true)
             isEditModeRef.current = true
