@@ -45,17 +45,19 @@
 
 /* 섹션 헤더 스타일 */
 .account-form-section-header {
-  background-color: #e8f5e9;
+  background: linear-gradient(135deg, #00c853 0%, #00a844 100%);
   padding: 2px 6px;
   border-radius: 2px;
   display: flex;
   align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 200, 83, 0.2);
 }
 
 .account-form-section-header label {
-  font-weight: 600;
-  color: #2e7d32;
+  font-weight: 700;
+  color: #ffffff;
   margin: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .account-form-section-header input {
@@ -91,11 +93,18 @@
 
 /* 인라인 폼 컨테이너 */
 .inline-form-container {
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 2px;
+  background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--border-radius);
   padding: 4px 8px;
   margin-bottom: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.inline-form-container:hover {
+  box-shadow: var(--shadow-md);
+  border-color: rgba(20, 40, 160, 0.2);
 }
 
 .inline-form-content {
@@ -187,16 +196,21 @@
 }
 
 .inline-form-content .form-group input:focus,
-.inline-form-content .form-group select:focus {
+.inline-form-content .form-group select:focus,
+.inline-form-content .form-group textarea:focus {
   outline: none;
-  border-color: #1a73e8;
-  box-shadow: 0 0 0 1px rgba(26, 115, 232, 0.2);
+  border-color: #1428a0;
+  box-shadow: 0 0 0 2px rgba(20, 40, 160, 0.15);
+  background-color: #ffffff;
 }
 
 .inline-form-content .form-group input:disabled,
-.inline-form-content .form-group select:disabled {
-  background-color: #f5f5f5;
+.inline-form-content .form-group select:disabled,
+.inline-form-content .form-group textarea:disabled {
+  background-color: #f5f5f7;
   cursor: not-allowed;
+  opacity: 0.6;
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 /* 에러 메시지 크기 조정 */
@@ -241,15 +255,17 @@
 .inline-form-content .form-group.account-form-section-header {
   display: block !important;
   grid-column: span 2;
-  background-color: #e8f5e9;
+  background: linear-gradient(135deg, #00c853 0%, #00a844 100%);
   padding: 2px 6px;
   border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 200, 83, 0.2);
 }
 
 .inline-form-content .form-group.account-form-section-header label {
   margin: 0;
-  font-weight: 600;
-  color: #2e7d32;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* 에러 메시지 처리 */

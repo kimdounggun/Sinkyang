@@ -415,7 +415,7 @@ const UserManagement = () => {
       />
 
       {/* 하단 테이블 */}
-      <Section title="▲사용자 목록">
+      <Section>
         <Table
           columns={columns}
           data={users}

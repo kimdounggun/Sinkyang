@@ -5,6 +5,8 @@
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  letter-spacing: 0.2px;
 }
 
 .badge-small {
@@ -18,31 +20,37 @@
 }
 
 .badge-primary {
-  background-color: #e3f2fd;
-  color: #1976d2;
+  background: linear-gradient(135deg, rgba(20, 40, 160, 0.15) 0%, rgba(20, 40, 160, 0.1) 100%);
+  color: #1428a0;
+  border: 1px solid rgba(20, 40, 160, 0.2);
 }
 
 .badge-success {
-  background-color: #e8f5e9;
-  color: #2e7d32;
+  background: linear-gradient(135deg, rgba(0, 200, 83, 0.15) 0%, rgba(0, 200, 83, 0.1) 100%);
+  color: #00c853;
+  border: 1px solid rgba(0, 200, 83, 0.2);
 }
 
 .badge-warning {
-  background-color: #fff3e0;
-  color: #f57c00;
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.15) 0%, rgba(255, 152, 0, 0.1) 100%);
+  color: #ff9800;
+  border: 1px solid rgba(255, 152, 0, 0.2);
 }
 
 .badge-danger {
-  background-color: #ffebee;
-  color: #c62828;
+  background: linear-gradient(135deg, rgba(229, 57, 53, 0.15) 0%, rgba(229, 57, 53, 0.1) 100%);
+  color: #e53935;
+  border: 1px solid rgba(229, 57, 53, 0.2);
 }
 
 .badge-info {
-  background-color: #e0f2f1;
-  color: #00695c;
+  background: linear-gradient(135deg, rgba(0, 172, 193, 0.15) 0%, rgba(0, 172, 193, 0.1) 100%);
+  color: #00acc1;
+  border: 1px solid rgba(0, 172, 193, 0.2);
 }
 
 .badge-default {
-  background-color: #f5f5f5;
-  color: #666;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.05) 100%);
+  color: #4a4a4a;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }

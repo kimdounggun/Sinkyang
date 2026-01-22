@@ -11,15 +11,17 @@
 
 .page-title {
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0 0 8px 0;
-  color: #333;
+  color: #1a1a1a;
+  letter-spacing: -0.3px;
 }
 
 .page-description {
   font-size: 14px;
-  color: #666;
+  color: #4a4a4a;
   margin: 0;
+  font-weight: 400;
 }
 
 .page-header-actions {

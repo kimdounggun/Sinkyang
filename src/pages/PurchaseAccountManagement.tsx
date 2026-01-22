@@ -412,7 +412,7 @@ const PurchaseAccountManagement = () => {
       />
 
       {/* 하단 테이블 */}
-      <Section title="▲매입거래처 목록">
+      <Section>
         <Table
           columns={columns}
           data={accounts}

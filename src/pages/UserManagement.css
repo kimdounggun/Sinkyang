@@ -4,11 +4,12 @@
 
 /* 상단 버튼 헤더 */
 .user-management .account-page-header {
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
+  background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--border-radius);
   padding: 12px 16px;
   margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
 }
 
 .user-management .account-page-header .section-actions {
