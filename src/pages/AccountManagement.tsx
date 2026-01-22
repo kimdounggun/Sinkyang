@@ -315,11 +315,102 @@ const AccountManagement = () => {
           >
             <span>F1 검색</span>
           </Button>
-          <Button onClick={handleAdd} type="button" size="small">
+          <Button 
+            onClick={() => {
+              // 추가 모드이고 편집 중일 때: 필드가 모두 비어있으면 취소
+              if (isEditMode && editingAccount === undefined) {
+                const isEmpty = checkEmptyFields()
+                if (isEmpty) {
+                  setIsEditMode(false)
+                  isEditModeRef.current = false
+                  handleCancel()
+                  
+                  // 포커스 제거
+                  const form = document.querySelector('.inline-form-content')
+                  if (form) {
+                    const inputs = form.querySelectorAll(
+                      'input:not([type="checkbox"]):not([type="radio"]), textarea'
+                    ) as NodeListOf<HTMLInputElement | HTMLTextAreaElement>
+                    inputs.forEach((input) => {
+                      if (input instanceof HTMLElement) {
+                        input.blur()
+                      }
+                    })
+                  }
+                  
+                  // 테이블에 포커스
+                  setTimeout(() => {
+                    const table = document.querySelector('.data-table')
+                    if (table) {
+                      ;(table as HTMLElement).focus()
+                    } else {
+                      document.body.focus()
+                    }
+                  }, 50)
+                  return
+                }
+              }
+              
+              // 추가 모드로 진입
+              handleAdd()
+              setIsEditMode(true)
+              isEditModeRef.current = true
+              setTimeout(() => {
+                const form = document.querySelector('.inline-form-content')
+                if (form) {
+                  const firstInput = form.querySelector(
+                    'input:not([type="checkbox"]):not([type="radio"]), textarea'
+                  ) as HTMLElement
+                  if (firstInput) {
+                    firstInput.focus()
+                  }
+                }
+              }, 50)
+            }} 
+            type="button" 
+            size="small"
+          >
             <span>F2 추가</span>
           </Button>
           <Button 
-            onClick={() => selectedAccount && handleEdit(selectedAccount)} 
+            onClick={() => {
+              if (selectedAccount) {
+                if (isEditMode && editingAccount) {
+                  // 수정 모드일 때: 취소 (원래 데이터로 되돌림)
+                  setIsEditMode(false)
+                  isEditModeRef.current = false
+                  handleCancel()
+                  
+                  // 포커스 제거
+                  const form = document.querySelector('.inline-form-content')
+                  if (form) {
+                    const inputs = form.querySelectorAll(
+                      'input:not([type="checkbox"]):not([type="radio"]), textarea'
+                    ) as NodeListOf<HTMLInputElement | HTMLTextAreaElement>
+                    inputs.forEach((input) => {
+                      if (input instanceof HTMLElement) {
+                        input.blur()
+                      }
+                    })
+                  }
+                  
+                  // 테이블에 포커스
+                  setTimeout(() => {
+                    const table = document.querySelector('.data-table')
+                    if (table) {
+                      ;(table as HTMLElement).focus()
+                    } else {
+                      document.body.focus()
+                    }
+                  }, 50)
+                } else {
+                  // 수정 모드로 전환
+                  handleEdit(selectedAccount)
+                  setIsEditMode(true)
+                  isEditModeRef.current = true
+                }
+              }
+            }} 
             type="button" 
             size="small"
             variant="warning"
